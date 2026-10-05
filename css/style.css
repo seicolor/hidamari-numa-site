@@ -527,3 +527,22 @@ body.is-loading .progress { opacity: 0; }
 
 /* 見出しは、文節のとちゅうで折り返さない（文節ごとのまとまりで、折り返す） */
 .wd { display: inline-block; }
+
+/* タッチでは、おす所を大きく（48px 目安） */
+@media (pointer: coarse) {
+  .seal { width: 40px; height: 40px; font-size: 14px; }
+  .nav-sound, .nav-wx { min-width: 44px; height: 44px; justify-content: center; }
+  .nav-cta { height: 44px; }
+  .rbtn { width: 48px; height: 48px; }
+  .modal-x { width: 44px; height: 44px; }
+}
+
+/* ---------- ゲームの中の図鑑 ---------- */
+.journal { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4.4fr); gap: clamp(24px, 5vw, 80px); align-items: center; margin-top: clamp(64px, 9vw, 140px); }
+.journal-fig { margin: 0; border-radius: 4px; overflow: hidden; box-shadow: 0 40px 70px -40px rgba(23, 35, 30, .6); background: #14231d; }
+.journal-fig img { width: 100%; height: auto; display: block; }
+.journal-tx h3 { font-size: clamp(22px, 2.2vw, 32px); font-weight: 500; letter-spacing: .14em; margin-bottom: 14px; position: relative; padding-bottom: 14px; }
+.journal-tx h3::after { content: ''; position: absolute; left: 0; bottom: 0; width: 36px; height: 1px; background: var(--accent-t); }
+.journal-tx p { color: var(--ink2); font-size: .96em; max-width: 24em; }
+.journal-tx p + p { margin-top: .9em; }
+@media (max-width: 960px) { .journal { grid-template-columns: 1fr; } }

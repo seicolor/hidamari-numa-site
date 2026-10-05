@@ -47,7 +47,9 @@ const SCENES = {
     await sleep(2500);
   } },
   cat_dusk: { qs: 'season=autumn&hour=17.4&w=clear', run: async (p) => {
+    // 猫が歩いてくるのを待たず、歩く距離をつめて、すぐ座らせる
     await p.evaluate(() => { __g.critters.trigger('cat'); __g.player.fov = __g.player.targetFov = 44; __g.player.baseYaw = -0.64; __g.player.basePitch = -0.45; });
+    await p.evaluate(() => { const C = __g.critters, c = C.cts; c.pos.z = C.post.z + 0.9; });
     await p.waitForFunction(() => { const c = __g.critters.cts; return c.state === 'sit' && c.t > 2.5; }, null, { timeout: 900000 });
   } },
   kingfisher: { qs: 'season=summer&hour=12&w=clear', run: async (p) => {
