@@ -95,8 +95,11 @@ if (P.has('fps')) {
 const gate = $('#gate'), bar = $('#gate .gate-bar'), msg = $('#gate-msg'), acts = $('#gate-actions');
 const gp = (v, t) => { gate.style.setProperty('--gp', v); if (t) msg.textContent = t; };
 
+// 入口のあいだは、うしろの画面に、キーボードでも触れないように
+const setInert = (on) => $$('#main, #nav, .dots, .foot, .skip').forEach((el) => { el.inert = on; });
+
 async function boot() {
-  $('#main').inert = true; $('#nav').inert = true;
+  setInert(true);
   gp(0.1);
   await Promise.race([Promise.all([document.fonts.load('500 1em "Shippori Mincho"'), document.fonts.load('italic 1em "Cormorant Garamond"')]), sleep(2600)]);
   gp(0.4, '空をひろげています');
@@ -125,7 +128,7 @@ async function enter(withSound, ev) {
   body.classList.add('is-ready');
   gate.classList.add('is-open');
   body.classList.remove('is-loading');
-  $('#main').inert = false; $('#nav').inert = false;
+  setInert(false);
   // 水面に、はじめの波紋
   setTimeout(() => { gl.ripple(0.5, 0.18, 1.2); sound.a?.plip(0.6, 0); }, 700);
   setTimeout(() => { gate.hidden = true; const hs = $('#hero'); hs.tabIndex = -1; hs.focus({ preventScroll: true }); }, 1700);

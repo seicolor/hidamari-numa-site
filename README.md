@@ -67,6 +67,17 @@ js/audio.js       … 音の合成（ゲームから移植）／ sound.js … �
 - 背景の WebGL は、画面に見えているときだけ描画。フレーム時間を測って、描画解像度を自動で上下
 - 書体は、使う文字だけを取り出した woff2。画像は WebP（`srcset`・遅延読み込み）
 
+## 試験（`tools/`、Chromium が必要）
+
+```bash
+node tools/test-ui.mjs        # 季節・天気・音・音の層・予告編・コイの見くらべ・横スクロール・ページ内リンク（18項目）
+node tools/test-fishing.mjs   # 糸をたらす → 合わせる → 釣れたカード → 魚拓 → 図鑑
+node tools/test-keyboard.mjs  # キーボードだけで釣りが遊べるか
+node tools/test-headings.mjs  # 見出しが、どの幅でも、はみ出さず文節で折り返すか
+node tools/audit-axe.mjs      # axe-core（AUDIT_DIR に axe-core を入れておく）
+node tools/lighthouse.mjs [mobile|desktop]
+```
+
 ## 計測の目安
 
 - axe-core（WCAG 2.1 A/AA + ベストプラクティス）: 違反 0
