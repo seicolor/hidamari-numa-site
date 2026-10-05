@@ -201,7 +201,12 @@ export function initUI({ scroll, fishing, gl }) {
     const lab = cur.firstChild; let cx = -100, cy = -100, tx = -100, ty = -100, on = false;
     addEventListener('pointermove', (e) => { tx = e.clientX; ty = e.clientY; if (!on) { on = true; cx = tx; cy = ty; cur.classList.add('on'); } const el = e.target.closest && e.target.closest('a, button, .rail, .koi-stage, .water-hit, label'); cur.classList.toggle('big', !!el); cur.classList.toggle('water', !!(e.target.closest && e.target.closest('.water-hit'))); lab.textContent = e.target.closest && e.target.closest('.water-hit') ? 'たらす' : e.target.closest && e.target.closest('.rail') ? 'ひく' : ''; });
     document.documentElement.addEventListener('mouseleave', () => cur.classList.remove('on'));
-    cur._step = () => { cx += (tx - cx) * 0.18; cy += (ty - cy) * 0.18; cur.style.transform = `translate3d(${cx}px,${cy}px,0)`; };
+    cur._step = () => {
+      cx += (tx - cx) * 0.18; cy += (ty - cy) * 0.18; cur.style.transform = `translate3d(${cx}px,${cy}px,0)`;
+      // 釣りの最中は、輪をちいさく（投げたウキを、かくさないように）
+      const busy = cur.classList.contains('water') && fishing.state !== 'idle';
+      if (busy !== cur._busy) { cur._busy = busy; cur.classList.toggle('busy', busy); if (busy) lab.textContent = ''; else if (cur.classList.contains('water')) lab.textContent = 'たらす'; }
+    };
     api.cursor = cur;
   }
 
