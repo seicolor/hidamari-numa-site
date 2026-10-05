@@ -75,11 +75,11 @@ for fid in ('koi', 'nishiki', 'funa'):
     p = os.path.join(RAW, f'gyotaku_{fid}.png'); name = f'gyotaku-{fid}'
     if os.path.exists(p):
         im = Image.open(p).convert('RGB')
-        for w in (700, 1100, 1600): total += save(im, name, w, 80)[1]
+        for w in ((700, 1100, 1600) if fid == 'koi' else (700, 1100)): total += save(im, name, w, 80)[1]
         if name in placed: placed.remove(name)
     elif PLACE:
         im = placeholder(name, (1600, 1000))
-        for w in (700, 1100, 1600): save(im, name, w, 60)
+        for w in ((700, 1100, 1600) if fid == 'koi' else (700, 1100)): save(im, name, w, 60)
         if name not in placed: placed.append(name)
 # OGP 画像（1200x630）
 for src in ('dawn_mist', 'dusk', 'autumn_day'):
