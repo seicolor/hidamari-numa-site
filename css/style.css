@@ -198,7 +198,7 @@ body.is-ready .hero-title .ttl > span { opacity: 1; transform: none; filter: blu
 
 /* ---------- 窓（時間のひとこま） ---------- */
 .beat { height: 150svh; }
-.beat-in { position: sticky; top: 0; height: 100svh; display: flex; flex-direction: column; justify-content: flex-start; padding-top: calc(var(--nav-h) + 3svh); align-items: flex-start; padding: 0 var(--gut); padding-left: max(var(--gut), calc((100vw - 1280px) / 2)); opacity: clamp(0, calc((1 - var(--p, 0)) * 4.5), 1); }
+.beat-in { position: sticky; top: 0; height: 100svh; display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; padding: calc(var(--nav-h) + 3svh) var(--gut) 0; padding-left: max(var(--gut), calc((100vw - 1280px) / 2)); opacity: clamp(0, calc((1 - var(--p, 0)) * 4.5), 1); }
 .beat-time { display: flex; gap: 16px; align-items: baseline; font-size: 14px; letter-spacing: .36em; margin-bottom: clamp(18px, 3vw, 36px); }
 .beat-time .num { font-size: 24px; letter-spacing: .1em; }
 .beat-line { font-weight: 500; font-size: clamp(34px, 6.2vw, 108px); line-height: 1.26; letter-spacing: .06em; }

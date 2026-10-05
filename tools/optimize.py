@@ -19,7 +19,6 @@ SCENES = {  # 生の名前: (サイトでの名前, 幅の一覧)
     'rainbow': ('rainbow', [700, 1000, 1500]), 'kingfisher': ('kingfisher', [700, 1000, 1500]), 'frog': ('frog', [700, 1000, 1500]),
     'cat_dusk': ('cat-dusk', [700, 1000, 1500]), 'neighbor': ('neighbor', [700, 1000, 1500]), 'boat_deep': ('boat-deep', [700, 1000, 1500]),
     'meteor': ('meteor', [700, 1000, 1500]), 'fireworks': ('fireworks', [700, 1000, 1500]),
-    'ui_journal': ('ui-journal', [900, 1400]), 'ui_card': ('ui-card', [900, 1400]),
 }
 FISH = ['funa', 'koi', 'tanago', 'imori', 'dojo', 'zarigani', 'namazu', 'nishiki', 'hibuna', 'unagi', 'herabuna', 'wakasagi', 'nushi', 'boot']
 TINT = {'spring-day': (232, 180, 190), 'summer-day': (70, 150, 110), 'autumn-day': (200, 110, 50), 'winter-day': (170, 200, 220)}
