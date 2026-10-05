@@ -45,7 +45,8 @@ const paintFallback = (k) => {
 // 夜のことばは、季節で少し変わる
 const nightLine = $('#night-h .ln:nth-child(2) > span');
 let nightSeason = '';
-const nightText = { spring: 'ほたるが寄ってくる。', summer: 'ほたるが寄ってくる。', autumn: 'ほたるが寄ってくる。', winter: '雪の粒が、ひかる。' };
+const chunks = (...a) => a.map((s) => `<span class="wd">${s}</span>`).join('');
+const nightText = { spring: chunks('ほたるが', '寄ってくる。'), summer: chunks('ほたるが', '寄ってくる。'), autumn: chunks('ほたるが', '寄ってくる。'), winter: chunks('雪の粒が、', 'ひかる。') };
 
 // ---- 計測 ----
 let nightSec = null, fishSec = null;
@@ -75,7 +76,7 @@ function tick(now) {
   sound.update(dt, k);
   ui.mixTick();
   if (ui.cursor && ui.cursor._step) ui.cursor._step();
-  const s = world.season; if (nightSeason !== s) { nightSeason = s; nightLine.textContent = nightText[s]; }
+  const s = world.season; if (nightSeason !== s) { nightSeason = s; nightLine.innerHTML = nightText[s]; }
 }
 
 // タブが裏にまわったら、タイトルでそっと呼びかける

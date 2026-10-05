@@ -524,3 +524,6 @@ body.is-loading .progress { opacity: 0; }
 .how b { font-weight: 500; font-size: 17px; letter-spacing: .2em; }
 .how li > span:last-child { grid-column: 2; font-size: 13px; line-height: 1.85; letter-spacing: .06em; opacity: .9; }
 @media (max-width: 760px) { .how { grid-template-columns: 1fr; gap: 10px; } .how li { padding-top: 8px; } }
+
+/* 見出しは、文節のとちゅうで折り返さない（文節ごとのまとまりで、折り返す） */
+.wd { display: inline-block; }
