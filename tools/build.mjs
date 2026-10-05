@@ -45,7 +45,8 @@ const moments = MOM.map(([cls, name, t, cap, , par]) => `    <figure class="mo $
 
 const f = path.join(ROOT, 'index.html');
 let h = fs.readFileSync(f, 'utf8');
-const sub = (name, body) => { h = h.replace(new RegExp(`(<!--build:${name}-->)[\\s\\S]*?(<!--/build:${name}-->)`), `$1\n${body}\n$2`); };
+const sub = (name, body) => { h = h.replace(new RegExp(`(<!--build:${name}-->)[\\s\\S]*?(<!--/build:${name}-->)`), (m, a, z) => `${a}\n${body}\n${z}`); };
 sub('cards', cards); sub('moments', moments);
+
 fs.writeFileSync(f, h);
 console.log('built', SPECIES.length, 'cards,', MOM.length, 'moments');

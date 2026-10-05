@@ -1,5 +1,4 @@
 // ページ全体の音。ゲームと同じ合成の仕組み（audio.js）を、時刻と季節に合わせて鳴らす。
-import { Audio } from './audio.js';
 import { setSeason } from './audio-shim.js';
 import { world } from './world.js';
 
@@ -14,7 +13,7 @@ export const sound = {
     if (on) return;
     on = true;
     try { localStorage.setItem(KEY, '1'); } catch (e) { /* なにもしない */ }
-    if (!a) a = new Audio();
+    if (!a) { const m = await import('./audio.js'); a = new m.Audio(); }   // 音の部品は、音を入れるときに読みこむ
     busy = a.init().then(() => {
       a.enabled = on;
       if (a.master) a.master.gain.setTargetAtTime(a.volume, a.ctx.currentTime, 0.4);

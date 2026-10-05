@@ -12,7 +12,7 @@ const chrome = await chromeLauncher.launch({ chromePath: '/opt/pw-browsers/chrom
 const form = process.argv[2] === 'desktop' ? 'desktop' : 'mobile';
 const flags = { port: chrome.port, output: 'json', logLevel: 'error', onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'] };
 const config = form === 'desktop' ? { extends: 'lighthouse:default', settings: { formFactor: 'desktop', screenEmulation: { mobile: false, width: 1440, height: 900, deviceScaleFactor: 1, disabled: false }, throttlingMethod: 'simulate' } } : undefined;
-const res = await lighthouse(`http://localhost:${srv.address().port}/index.html`, flags, config);
+const res = await lighthouse(`http://localhost:${srv.address().port}/index.html${process.env.LH_QS || ''}`, flags, config);
 const lhr = res.lhr;
 console.log(form, Object.entries(lhr.categories).map(([k, v]) => `${k}:${Math.round(v.score * 100)}`).join('  '));
 const a = lhr.audits;
@@ -20,5 +20,5 @@ for (const id of ['first-contentful-paint', 'largest-contentful-paint', 'total-b
 const bad = Object.values(a).filter((x) => x.score !== null && x.score < 0.9 && x.scoreDisplayMode !== 'informative' && x.scoreDisplayMode !== 'notApplicable' && x.scoreDisplayMode !== 'manual');
 console.log('--- under 0.9 ---');
 bad.forEach((x) => console.log(` ${x.id} (${x.score}) ${x.title}${x.displayValue ? ' — ' + x.displayValue : ''}`));
-fs.writeFileSync(`tools/_logs/lighthouse-${form}.json`, JSON.stringify({ cats: Object.fromEntries(Object.entries(lhr.categories).map(([k, v]) => [k, v.score])), bad: bad.map((x) => ({ id: x.id, score: x.score, title: x.title, items: (x.details && x.details.items || []).slice(0, 6) })) }, null, 1));
+fs.writeFileSync(`tools/_logs/lighthouse-${form}.json`, JSON.stringify({ cats: Object.fromEntries(Object.entries(lhr.categories).map(([k, v]) => [k, v.score])), bad: bad.map((x) => ({ id: x.id, score: x.score, title: x.title, items: Array.isArray(x.details && x.details.items) ? x.details.items.slice(0, 6) : [] })) }, null, 1));
 await chrome.kill(); srv.close();

@@ -42,6 +42,9 @@ if (got) {
   await pg.waitForTimeout(2200);
   await pg.screenshot({ path: 'tools/_logs/t_catch.png' });
   console.log('caught:', await pg.textContent('#catch-n'), await pg.textContent('#catch-size'), '|', await pg.textContent('#catch-new'));
+  await pg.click('#catch-gyo'); await pg.waitForTimeout(9000);
+  console.log('gyotaku made:', await pg.evaluate(() => document.getElementById('catch-card').classList.contains('is-gyo')), '|', await pg.textContent('#catch-gyo'));
+  await pg.screenshot({ path: 'tools/_logs/t_gyo.png' });
   await pg.click('#catch-close');
   await pg.waitForTimeout(800);
   console.log('zukan counter:', await pg.textContent('#zukan-n'), 'localStorage:', await pg.evaluate(() => localStorage.getItem('hnm.zukan.v1')));

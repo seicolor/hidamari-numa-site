@@ -10,29 +10,33 @@ export function createGL(canvas, { quality = 2, maxScale = 1.5 } = {}) {
   const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: false });
   if (!gl) return { ok: false };
 
-  const compile = (type, src) => {
-    const s = gl.createShader(type);
-    gl.shaderSource(s, src); gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { const log = gl.getShaderInfoLog(s); gl.deleteShader(s); throw new Error(log); }
-    return s;
-  };
-  let prog, loc = {}, ripLoc;
-  const build = (q) => {
-    const p = gl.createProgram();
-    gl.attachShader(p, compile(gl.VERTEX_SHADER, VERT));
-    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, frag(q)));
+  // シェーダーのコンパイルは、画面を止めないよう、可能なら並列に（KHR_parallel_shader_compile）して、終わるのを待つ
+  const par = gl.getExtension('KHR_parallel_shader_compile');
+  let prog = null, loc = {}, ripLoc = null;
+  const start = (q) => {
+    const p = gl.createProgram(), sh = [];
+    for (const [type, src] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, frag(q)]]) {
+      const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); gl.attachShader(p, s); sh.push(s);
+    }
     gl.linkProgram(p);
-    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
-    if (prog) gl.deleteProgram(prog);
-    prog = p; gl.useProgram(p);
-    loc = {}; U.forEach((n) => { loc[n] = gl.getUniformLocation(p, n); });
-    ripLoc = gl.getUniformLocation(p, 'uRip');
+    return { p, sh };
   };
-  try { build(quality); } catch (e) { console.warn('shader', e.message); return { ok: false, error: e.message }; }
+  const finish = ({ p, sh }) => new Promise((resolve, reject) => {
+    const poll = () => {
+      if (par && !gl.getProgramParameter(p, par.COMPLETION_STATUS_KHR)) { setTimeout(poll, 12); return; }
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { reject(new Error(sh.map((s) => gl.getShaderInfoLog(s)).join('\n') + gl.getProgramInfoLog(p))); return; }
+      if (prog) gl.deleteProgram(prog);
+      prog = p; gl.useProgram(p);
+      loc = {}; U.forEach((n) => { loc[n] = gl.getUniformLocation(p, n); });
+      ripLoc = gl.getUniformLocation(p, 'uRip');
+      resolve();
+    };
+    poll();
+  });
   gl.bindVertexArray(gl.createVertexArray());
 
   const api = {
-    ok: true, canvas, gl,
+    ok: true, ready: null, canvas, gl,
     scale: Math.min(maxScale, window.devicePixelRatio || 1, quality >= 2 ? 0.85 : 0.65),   // はじめは控えめに。余裕があれば、自動で上げる
     maxScale, minScale: 0.35, quality,
     animate: true,
@@ -71,7 +75,7 @@ export function createGL(canvas, { quality = 2, maxScale = 1.5 } = {}) {
   // 描く（時間の進み方は省エネ：止めるときは同じ時刻の絵を描き直すだけ）
   let hist = [], lastT = performance.now(), warm = 0;
   api.render = (nowMs = performance.now()) => {
-    if (api.lost) return;
+    if (api.lost || !prog) return;
     const dt = nowMs - lastT; lastT = nowMs;
     // 描画が重いときは解像度を落とす／余裕があれば戻す
     if (dt > 0 && dt < 500) {
@@ -107,8 +111,9 @@ export function createGL(canvas, { quality = 2, maxScale = 1.5 } = {}) {
   };
 
   canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); api.lost = true; });
-  canvas.addEventListener('webglcontextrestored', () => { try { build(quality); gl.bindVertexArray(gl.createVertexArray()); api.lost = false; api.resize(); } catch (e) { /* あきらめる */ } });
+  canvas.addEventListener('webglcontextrestored', () => { prog = null; gl.bindVertexArray(gl.createVertexArray()); finish(start(quality)).then(() => { api.lost = false; api.resize(); }).catch(() => { /* あきらめる */ }); });
   api.resize();
+  api.ready = finish(start(quality)).catch((e) => { console.warn('shader', e.message); api.ok = false; api.error = e.message; });
   return api;
 }
 

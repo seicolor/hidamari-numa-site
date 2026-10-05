@@ -61,7 +61,7 @@ addEventListener('pointermove', (e) => { gl.pointer[0] = (e.clientX / innerWidth
 let last = performance.now(), frame = 0, nextAmb = 0;
 function tick(now) {
   requestAnimationFrame(tick);
-  if (document.hidden) { last = now; return; }
+  if (document.hidden || body.classList.contains('is-loading')) { last = now; return; }   // 入口のあいだ（画面がかくれているあいだ）は、描かない
   const dt = Math.min(0.05, (now - last) / 1000); last = now; frame++;
   const k = updateWorld(dt, gl);
   scroll.update();
@@ -101,6 +101,8 @@ async function boot() {
   await Promise.race([Promise.all([document.fonts.load('500 1em "Shippori Mincho"'), document.fonts.load('italic 1em "Cormorant Garamond"')]), sleep(2600)]);
   gp(0.4, '空をひろげています');
   doMeasure();
+  await Promise.race([gl.ready || Promise.resolve(), sleep(20000)]);   // シェーダーの用意（画面を止めずに待つ）
+  if (!gl.ok) document.documentElement.classList.add('no-gl');
   setSeason(world.season);
   document.documentElement.dataset.season = world.season;
   updateWorld(1, gl);

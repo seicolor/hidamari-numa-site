@@ -5,7 +5,6 @@ import { SPECIES } from './species.js';
 import { zukan } from './zukan.js';
 import { $, $$, clamp, lerp, reduced, coarse } from './util.js';
 import { partOfDay } from './sky.js';
-import { makeGyotaku } from './gyotaku.js';
 
 export function initUI({ scroll, fishing, gl }) {
   const body = document.body;
@@ -103,6 +102,7 @@ export function initUI({ scroll, fishing, gl }) {
       const im = $('#catch-img'); if (im.decode) await im.decode().catch(() => {});
       const fc = document.createElement('canvas'); fc.width = im.naturalWidth || 900; fc.height = im.naturalHeight || 563;
       fc.getContext('2d').drawImage(im, 0, 0, fc.width, fc.height);
+      const { makeGyotaku } = await import('./gyotaku.js');   // 魚拓の部品は、刷るときに読みこむ
       const cv = await makeGyotaku(fc, { sp: gyo.sp, cm: gyo.cm, date: new Date() });
       gyo.url = cv.toDataURL('image/jpeg', 0.9); gyo.done = true;
       im.src = gyo.url; im.alt = `${gyo.sp.name}の魚拓`; catchCard.classList.add('is-gyo');

@@ -554,3 +554,4 @@ body.is-loading .progress { opacity: 0; }
 .play-sub, .how, .play-meta, .play-cta .btn-ghost-l { color: var(--cream); text-shadow: 0 1px 14px rgba(0, 0, 0, .55); }
 .play-meta .qr { text-shadow: none; }
 @media (max-width: 960px) { .beat-in { padding-top: calc(var(--nav-h) + 4svh); } .beat-line { font-size: clamp(32px, 9.2vw, 66px); } }
+.catch-new { margin-bottom: 8px; }
