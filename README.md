@@ -67,6 +67,11 @@ js/audio.js       … 音の合成（ゲームから移植）／ sound.js … �
 - 背景の WebGL は、画面に見えているときだけ描画。フレーム時間を測って、描画解像度を自動で上下
 - 書体は、使う文字だけを取り出した woff2。画像は WebP（`srcset`・遅延読み込み）
 
+## 計測の目安
+
+- axe-core（WCAG 2.1 A/AA + ベストプラクティス）: 違反 0
+- Lighthouse（ヘッドレス・ソフトウェア描画の環境）: アクセシビリティ 100 / SEO 100 / ベストプラクティス 100。性能の数値は、この環境が背景の WebGL を CPU で描くため、実機より厳しく出ます（WebGL を切ると、スマホ想定で 77）。実機のGPUでの体感は、別途確認してください
+
 ## 書体・ライセンス
 
 - Shippori Mincho、Cormorant Garamond … SIL Open Font License 1.1（`assets/fonts/OFL.txt`）
