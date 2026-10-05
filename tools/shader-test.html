@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><title>shader test</title>
+<style>html,body{margin:0;background:#000}canvas{position:fixed;inset:0;width:100%;height:100%;display:block}</style>
+<canvas id="c"></canvas>
+<script type="module">
+import { createGL } from '/js/gl.js';
+const q = new URLSearchParams(location.search);
+const g = createGL(document.getElementById('c'), { quality: +(q.get('q') ?? 2), maxScale: +(q.get('ms') ?? 1) });
+window.g = g;
+if (!g.ok) { document.title = 'FAIL ' + g.error; }
+else {
+  g.scale = +(q.get('sc') ?? 1); g.resize();
+  const S = g.S;
+  S.hour = +(q.get('h') ?? 7); const se = +(q.get('s') ?? 0);
+  S.season = [0,0,0,0]; S.season[se] = 1;
+  S.mist = +(q.get('mist') ?? 0); S.parts = +(q.get('p') ?? 1); S.lily = +(q.get('lily') ?? .6); S.lights = +(q.get('lt') ?? 0); S.rainbow = +(q.get('rb') ?? 0);
+  g.animate = q.get('anim') !== '0';
+  g.horizon = +(q.get('hz') ?? .44);
+  g.render(); document.title = 'OK';
+  window.ready = true;
+}
+</script>
