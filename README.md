@@ -38,7 +38,7 @@ python3 tools/optimize.py        # → assets/img/*.webp（--placeholder で、�
 node tools/build.mjs             # 図鑑カード・できごとの並びを index.html に流しこむ
 python3 tools/subset-fonts.py    # 使う文字だけの woff2（assets/fonts-src に TTF が必要）
 python3 tools/set-play-url.py <ゲームのURL>   # 「沼へ行く」リンクとQRコードを差しかえ
-python3 tools/set-site-url.py <このサイトのURL>   # 共有用のメタ情報（canonical / og:image）を書く
+python3 tools/set-site-url.py <このサイトのURL>   # 共有用のメタ情報（canonical / og:url / og:image / X のカード）を書く。何度実行しても同じ
 ```
 
 ## つくり
