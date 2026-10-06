@@ -47,7 +47,7 @@ export function initUI({ scroll, fishing, gl }) {
   const mixOn = $('#mix-on'), mixState = $('#mix-state');
   const paintMix = () => {
     mixOn.textContent = sound.on ? '音を止める' : '音を入れる';
-    mixState.textContent = sound.on ? `いま、${SEASON_JA[displaySeason()]}の${partOfDay(world.hour)}の音を合成して鳴らしています。` : '音がオフです。ボタンを押すと、鳴りはじめます。';
+    mixState.textContent = sound.on ? `いま、${SEASON_JA[displaySeason()]}の${partOfDay(world.hour)}の音が鳴っています。` : '音がオフです。ボタンを押すと、鳴りはじめます。';
   };
   mixOn.addEventListener('click', async () => { await sound.toggle(); paintSound(); });
   $$('[data-mix]').forEach((c) => c.addEventListener('change', () => { sound.setMix(c.dataset.mix, c.checked); sound.a?.uiTick(); }));
