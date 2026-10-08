@@ -44,5 +44,5 @@
 .splay { padding: clamp(80px, 11vw, 140px) 0; background: var(--paper2); text-align: center; }
 .splay-in { display: grid; justify-items: center; }
 .splay .lede { margin-inline: auto; }
-.splay-a { margin-top: 30px; }
+.splay-a { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .splay-s { margin-top: 16px; font-size: 13px; letter-spacing: .1em; color: var(--ink2); }
