@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1c2a1f">
+<title>ひだまり沼 — 田舎の釣り</title>
+<meta name="description" content="山あいの小さな沼で、ウキを浮かべてぼんやり待つ。three.js で作った、のんびり田舎釣りゲーム。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A3%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/three.module.js",
+  "three/addons/": "./vendor/three/addons/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<noscript><p style="position:fixed;inset:0;display:grid;place-items:center;color:#f6eed9;font-family:serif">JavaScript を有効にしてください。</p></noscript>
+<div id="ui"></div>
+<!-- 旅の地図は先に（到着の続きを、重い読み込みを待たずに描きはじめる） -->
+<script type="module" src="src/worldmap.js"></script>
+<script type="module" src="src/move.js"></script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
