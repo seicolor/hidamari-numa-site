@@ -27,7 +27,7 @@ def og(src, out):
     top = max(0, min(h - ch, round((h - ch) * 0.55)))
     im.crop((0, top, w, top + ch)).resize((1200, 630), Image.LANCZOS).save(out, 'JPEG', quality=86)
 og('view-dusk.png', os.path.join(IMG, 'og.jpg'))
-og('map.png', os.path.join(ROOT, 'series', 'og.jpg'))
+# series/og.jpg は、シリーズのページの見出し（地球儀と2つの釣り場）から別に作ったもの（ここでは上書きしない）
 
 # 魚
 sp = json.load(open(os.path.join(RAW, 'species.json')))
