@@ -11,7 +11,10 @@ function pick() {
   let p = null;
   try { p = new URLSearchParams(location.search).get('place'); } catch (e) { /* ignore */ }
   if (IDS.includes(p)) { try { localStorage.setItem(KEY, p); } catch (e) { /* ignore */ } return p; }
-  choose = true;
+  // ?go=1（すぐ始める）・?map=1（旅の地図から）のときは、えらぶ画面を出さない（前回の釣り場を読みこむ）
+  let quick = false;
+  try { const q = new URLSearchParams(location.search); quick = q.get('go') === '1' || q.get('map') === '1'; } catch (e) { /* ignore */ }
+  choose = !quick;
   try { p = localStorage.getItem(KEY); } catch (e) { p = null; }
   if (IDS.includes(p)) last = p;
   else { try { last = localStorage.getItem('hidamari-numa-v1') ? 'numa' : localStorage.getItem('hidamari-hama-v1') ? 'hama' : null; } catch (e) { /* ignore */ } }

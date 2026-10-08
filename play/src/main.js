@@ -387,10 +387,22 @@ async function main() {
     started = true;
     player.enabled = !worldMap.isOpen;
     player.fov = 80; // ゆっくり寄っていく導入
-    try { await audio.init(); audio.setVolume(audio.volume); audio.uiConfirm(); } catch (e) { console.warn('audio', e); }
+    // 音: ?go=1 で自動で始めたときは、ブラウザが音を止めているので、最初のタップ・キーで鳴りはじめる（待たずに進める）
+    audio.init().then(() => { audio.setVolume(audio.volume); audio.uiConfirm(); }).catch((e) => console.warn('audio', e));
     ui.setHint(game.hintFor());
     setTimeout(() => ui.toast(L('のんびり、いきましょう', 'Take it easy'), 'info', 3200), 800);
   });
+  { const wake = () => { if (started) audio.init().catch(() => {}); }; addEventListener('pointerdown', wake); addEventListener('keydown', wake); }
+
+  // すぐ遊べるリンク: ?go=1 はタイトルをとばして釣りを始める。?map=1 は旅の地図をひらく（どちらも、読みこみがおわりしだい）
+  {
+    const q = new URLSearchParams(location.search), go = q.get('go') === '1', map = q.get('map') === '1';
+    if (go || map) {
+      try { const u = new URL(location.href); u.searchParams.delete('go'); u.searchParams.delete('map'); history.replaceState(history.state, '', u.toString()); } catch (e) { /* ignore */ }
+      if (map) openMap();
+      else ui.el.start.click();
+    }
+  }
 
   // ---------------------------------------------------------------- 旅の地図
   // 釣り場ごとのまとめ（地図のカードで、ほかの釣り場から見る）
