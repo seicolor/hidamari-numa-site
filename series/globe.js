@@ -39,13 +39,20 @@ function dots() {
 const DAYC = [214, 236, 246], NIGHTC = [64, 98, 124];
 const BUCKETS = Array.from({ length: 8 }, (_, k) => { const t = k / 7; return `rgb(${DAYC.map((v, i) => Math.round(lerp(NIGHTC[i], v, t))).join(',')})`; });
 
-export function mountGlobe(canvas, pinsEl, { onPick } = {}) {
+const gcKm = (a, b) => 6371 * Math.acos(clamp(a[0] * b[0] + a[1] * b[1] + a[2] * b[2], -1, 1));
+export const TRIP_KM = Math.round(gcKm(vec(PLACES[0].lat, PLACES[0].lon), vec(PLACES[1].lat, PLACES[1].lon)));
+// 大円の t の位置（緯度経度）
+export function tripAt(t) { return toLL(slerp(vec(PLACES[0].lat, PLACES[0].lon), vec(PLACES[1].lat, PLACES[1].lon), t)); }
+
+// opts.shift: 地球の中心を右へずらす割合（広い画面だけ）。opts.flight: スクロールで進む旅（setProgress(0..1) で動かす。自分では回らない）
+export function mountGlobe(canvas, pinsEl, { onPick, shift = 0, flight = false } = {}) {
   const ctx = canvas.getContext('2d');
   const D = dots();
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   // 2つの釣り場のまんなかを向く
   const mid = toLL(slerp(vec(PLACES[0].lat, PLACES[0].lon), vec(PLACES[1].lat, PLACES[1].lon), 0.5));
   const cam = { lat: mid.lat - 4, lon: mid.lon };
+  let prog = 0;
   let W = 0, H = 0, DPR = 1, stars = null, drag = null, visible = true;
   const oc = document.createElement('canvas'); oc.width = oc.height = 150;
   const octx = oc.getContext('2d'), oimg = octx.createImageData(150, 150);
@@ -67,7 +74,7 @@ export function mountGlobe(canvas, pinsEl, { onPick } = {}) {
   };
   new ResizeObserver(resize).observe(canvas);
   new IntersectionObserver((e) => { visible = e[0].isIntersecting; }).observe(canvas);
-  canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY, lat: cam.lat, lon: cam.lon }; canvas.setPointerCapture(e.pointerId); });
+  if (!flight) canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY, lat: cam.lat, lon: cam.lon }; canvas.setPointerCapture(e.pointerId); });
   canvas.addEventListener('pointermove', (e) => { if (!drag) return; const k = 0.32 * (400 / Math.min(W, H)); cam.lon = drag.lon - (e.clientX - drag.x) * k; cam.lat = clamp(drag.lat + (e.clientY - drag.y) * k, -60, 70); });
   const end = () => { drag = null; };
   canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
@@ -79,9 +86,15 @@ export function mountGlobe(canvas, pinsEl, { onPick } = {}) {
   function frame() {
     requestAnimationFrame(frame);
     if (!W || !visible) return;
-    if (!drag && !reduce) cam.lon += 0.012;
+    if (flight) {
+      // カメラは飛行機を追う（少し南から見おろす）
+      const e = prog < 0.5 ? 2 * prog * prog : 1 - Math.pow(-2 * prog + 2, 2) / 2;
+      const ll = tripAt(clamp(0.08 + e * 0.84));
+      cam.lat = ll.lat - 10; cam.lon = ll.lon;
+    } else if (!drag && !reduce) cam.lon += 0.012;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    const R = Math.min(W, H) * 0.44, cx = W / 2, cy = H / 2;
+    const narrow = flight && W < 860;
+    const R = narrow ? W * 0.4 : Math.min(W, H) * (flight ? 0.4 : 0.44), cx = W / 2 + (W > 1000 ? W * shift : 0), cy = narrow ? Math.min(H * 0.32, R + 90) : H / 2;
     const bg = ctx.createRadialGradient(cx, cy, R * 0.6, cx, cy, Math.max(W, H) * 0.9);
     bg.addColorStop(0, '#0c1a2a'); bg.addColorStop(1, '#03070d');
     ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
@@ -119,18 +132,32 @@ export function mountGlobe(canvas, pinsEl, { onPick } = {}) {
     }
     for (let k = 0; k < 8; k++) { const a = bx[k]; ctx.fillStyle = BUCKETS[k]; ctx.globalAlpha = 0.45 + 0.55 * (k / 7); for (let j = 0; j < a.length; j += 2) ctx.fillRect(a[j] - sz / 2, a[j + 1] - sz / 2, sz, sz); }
     ctx.globalAlpha = 1;
-    // 2つの釣り場をむすぶ大円（点線）
+    // 2つの釣り場をむすぶ大円（点線）。旅では、飛んだところまでを金の線に、先に紙飛行機
     const va = vec(PLACES[0].lat, PLACES[0].lon), vb = vec(PLACES[1].lat, PLACES[1].lon);
-    ctx.save(); ctx.strokeStyle = 'rgba(255,198,110,.6)'; ctx.lineWidth = 1.4; ctx.setLineDash([3, 5]); ctx.beginPath();
-    let pen = false;
-    for (let i = 0; i <= 80; i++) {
-      const t = i / 80, ll = toLL(slerp(va, vb, t)), alt = 1 + 0.16 * Math.sin(Math.PI * t);
-      const p = proj(Math.sin(ll.lat * D2R), Math.cos(ll.lat * D2R), ll.lon * D2R);
-      if (p[2] < -0.05 && Math.hypot(p[0] * alt, p[1] * alt) < 1) { pen = false; continue; }
-      const X = cx + p[0] * R * alt, Y = cy - p[1] * R * alt;
-      if (!pen) { ctx.moveTo(X, Y); pen = true; } else ctx.lineTo(X, Y);
+    const at = (t) => { const ll = toLL(slerp(va, vb, t)), alt = 1 + 0.16 * Math.sin(Math.PI * t); const p = proj(Math.sin(ll.lat * D2R), Math.cos(ll.lat * D2R), ll.lon * D2R); return { X: cx + p[0] * R * alt, Y: cy - p[1] * R * alt, hid: p[2] < -0.05 && Math.hypot(p[0] * alt, p[1] * alt) < 1 }; };
+    const line = (t0, t1, style, w, dash) => {
+      ctx.save(); ctx.strokeStyle = style; ctx.lineWidth = w; ctx.setLineDash(dash); ctx.beginPath();
+      let pen = false; const n = Math.max(2, Math.round(90 * (t1 - t0)));
+      for (let i = 0; i <= n; i++) { const q = at(t0 + ((t1 - t0) * i) / n); if (q.hid) { pen = false; continue; } if (!pen) { ctx.moveTo(q.X, q.Y); pen = true; } else ctx.lineTo(q.X, q.Y); }
+      ctx.stroke(); ctx.restore();
+    };
+    if (!flight) line(0, 1, 'rgba(255,198,110,.6)', 1.4, [3, 5]);
+    else {
+      const p = clamp(prog);
+      if (p < 1) line(p, 1, 'rgba(255,198,110,.32)', 1.2, [3, 6]);
+      if (p > 0) { ctx.save(); ctx.shadowColor = 'rgba(255,198,110,.8)'; ctx.shadowBlur = 8; line(0, p, 'rgba(255,214,150,.95)', 2.2, []); ctx.restore(); }
+      if (p > 0.002 && p < 0.998) {
+        const a = at(p), b = at(Math.min(1, p + 0.01)), ang = Math.atan2(b.Y - a.Y, b.X - a.X);
+        ctx.save(); ctx.translate(a.X, a.Y); ctx.rotate(ang);
+        const k = clamp(R / 260, 0.8, 1.6);
+        ctx.scale(k, k);
+        ctx.shadowColor = 'rgba(255,230,190,.9)'; ctx.shadowBlur = 12;
+        ctx.fillStyle = '#fff6e4';
+        ctx.beginPath(); ctx.moveTo(13, 0); ctx.lineTo(-9, -8); ctx.lineTo(-4, 0); ctx.lineTo(-9, 8); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = 'rgba(200,170,120,.9)'; ctx.beginPath(); ctx.moveTo(13, 0); ctx.lineTo(-4, 0); ctx.lineTo(-9, 8); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
     }
-    ctx.stroke(); ctx.restore();
     // ピン
     PLACES.forEach((p, i) => {
       const q = proj(Math.sin(p.lat * D2R), Math.cos(p.lat * D2R), p.lon * D2R);
@@ -143,4 +170,5 @@ export function mountGlobe(canvas, pinsEl, { onPick } = {}) {
   tick(); setInterval(tick, 15000);
   resize();
   requestAnimationFrame(frame);
+  return { setProgress: (v) => { prog = v; } };
 }

@@ -83,19 +83,32 @@
   </div>
 </section>
 
-<section class="trip dark" aria-labelledby="trip-h">
-  <div class="wrap trip-in">
-    <div>
-      <p class="kick rv"><span class="num">Travel map</span>旅の地図</p>
-      <h2 class="h2 rv" id="trip-h">移動の時間も、旅のうち。</h2>
-      <p class="lede rv">ゲームの右上の「地図」をひらくと、夜の地球儀。ピンをえらんで「出かける」と、紙飛行機が大円の上を飛びます。次の釣り場を読み込むあいだも、飛行機は飛びつづけ、着くと景色が円く開いて、日付入りの旅のはんこが押されます。</p>
-      <ul class="trip-l rv">
-        <li><b>現地の時刻</b>着いたときは、現地のいまの時刻から始まります（秋田とオアフ島の時差は19時間）。</li>
-        <li><b>記録は別々</b>図鑑や釣果は、釣り場ごと。行ったり来たりしても、消えません。</li>
-        <li><b>これからも</b>地図の淡い点線のピンは、これから増える釣り場の予告です。</li>
-      </ul>
+<section class="fly dark" id="fly" aria-labelledby="fly-h">
+  <div class="fly-stage">
+    <canvas id="flyglobe" aria-hidden="true"></canvas>
+    <div class="gpins" id="flypins" aria-hidden="true"></div>
+    <div class="fly-tx wrap">
+      <p class="kick"><span class="num">Travel map</span>旅の地図</p>
+      <h2 class="h2" id="fly-h">移動の時間も、旅のうち。</h2>
+      <ol class="fly-steps">
+        <li data-s="0"><b>秋田を発つ</b>ゲームの右上の「地図」で、ピンをえらんで「出かける」。紙飛行機が、大円の上を飛びはじめます。</li>
+        <li data-s="1"><b>太平洋の上で</b>次の釣り場を読み込むあいだも、飛行機は飛びつづけます。日付変更線をこえると、きのうに戻ります。</li>
+        <li data-s="2"><b>オアフ島に着く</b>景色が円く開いて、現地のいまの時刻から始まります。日付入りの、旅のはんこも。</li>
+      </ol>
+      <dl class="fly-meter" aria-live="off">
+        <div><dt>きょり</dt><dd><em id="flyKm">0</em> km</dd></div>
+        <div><dt>秋田</dt><dd id="flyA"></dd></div>
+        <div><dt>オアフ島</dt><dd id="flyB"></dd></div>
+      </dl>
+      <p class="fly-dl" id="flyDl">日付変更線</p>
     </div>
-    <figure class="trip-fig rv"><img src="../hama/img/map-1000.webp" width="1000" height="563" alt="ゲームの中の旅の地図。夜の地球儀に、ひだまり沼とひだまり浜のピンと、行き先のカード" loading="lazy"></figure>
+    <svg class="fly-stamp" id="flyStamp" viewBox="0 0 200 200" aria-hidden="true">
+      <g fill="none" stroke="#c43d26"><rect x="14" y="14" width="172" height="172" rx="22" stroke-width="7"/><rect x="26" y="26" width="148" height="148" rx="14" stroke-width="2.4"/></g>
+      <g fill="#c43d26" font-family="Shippori Mincho, serif" font-weight="800" text-anchor="middle">
+        <text x="100" y="62" font-size="20" letter-spacing="4">ひだまり</text><text x="100" y="128" font-size="62">浜</text>
+        <text x="100" y="156" font-size="13" letter-spacing="3">HAWAII</text><text x="100" y="174" font-size="11" letter-spacing="1.5" font-weight="600" id="flyDate"></text>
+      </g>
+    </svg>
   </div>
 </section>
 

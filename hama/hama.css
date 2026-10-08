@@ -68,3 +68,53 @@
 .qr img { background: #fff; padding: 8px; border-radius: 3px; }
 .spec { display: grid; gap: 8px; font-size: 14px; }
 .spec span { display: inline-block; min-width: 9em; color: var(--cream2); letter-spacing: .12em; }
+
+/* 入り江の一日（スクロールで、朝から夜へ） */
+.day { position: relative; height: 420vh; padding: 0; }
+.day-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.day-pics img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; will-change: opacity; }
+.day-pics img:first-child { opacity: 1; }
+.day-stage::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(4, 10, 16, .78) 0%, rgba(4, 10, 16, .45) 38%, rgba(4, 10, 16, 0) 64%); pointer-events: none; }
+.day-tx { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; text-shadow: 0 2px 16px rgba(0, 0, 0, .55); }
+.day-tx > * { max-width: 26em; }
+.day-clock { margin-top: 22px; font-family: var(--latin); font-size: clamp(64px, 9vw, 132px); line-height: 1; letter-spacing: .02em; font-variant-numeric: lining-nums tabular-nums; color: var(--cream); }
+.day-l { list-style: none; padding: 0; margin: 18px 0 0; display: grid; }
+.day-l li { grid-area: 1 / 1; font-size: 16px; letter-spacing: .1em; color: var(--cream2); opacity: 0; transform: translateY(10px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.day-l li b { color: var(--cream); font-weight: 500; letter-spacing: .18em; margin-right: 14px; }
+.day-l li.on { opacity: 1; transform: none; }
+.day-note { margin-top: 26px; font-size: 14px; line-height: 1.95; color: var(--cream2); }
+.day-bar { position: absolute; z-index: 2; left: var(--gut); right: var(--gut); bottom: clamp(22px, 5vh, 48px); height: 2px; background: rgba(246, 240, 226, .18); }
+.day-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffd696, #ff9a5c 70%, #8fb6ff); }
+@media (max-width: 700px) {
+  .day-stage::after { background: linear-gradient(0deg, rgba(4, 10, 16, .85) 0%, rgba(4, 10, 16, .5) 45%, rgba(4, 10, 16, 0) 75%); }
+  .day-tx { justify-content: flex-end; padding-bottom: 64px; }
+  .day-note { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .day-l li { transition: none; } }
+
+/* 水槽: 文字は写真の上、下にかけて暗く */
+.tank { padding: 0; }
+.tank-fig { position: relative; margin: 0; }
+.tank-fig::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 18, 26, .92) 0%, rgba(7, 18, 26, .55) 28%, rgba(7, 18, 26, 0) 55%); }
+.tank-fig img { display: block; width: 100%; height: min(92svh, 56.25vw); object-fit: cover; max-height: none; }
+.tank-tx { position: absolute; left: 0; right: 0; bottom: clamp(30px, 6vw, 80px); margin: 0 auto; max-width: none; padding: 0 var(--gut); background: none; z-index: 2; }
+.tank-tx > * { max-width: 34em; }
+@media (max-width: 700px) { .tank-tx { position: relative; bottom: auto; padding: 28px var(--gut) 60px; } .tank-fig::after { background: linear-gradient(0deg, rgba(7, 18, 26, 1) 0%, rgba(7, 18, 26, 0) 40%); } }
+
+/* 魚の名前: 長いカタカナは、区切りだけで折り返す */
+.fcard h3 { word-break: keep-all; overflow-wrap: anywhere; }
+
+/* 旅の地図: シリーズの入口へ */
+a.trip-fig { display: block; position: relative; }
+a.trip-fig img { width: 100%; height: auto; transition: transform 1s var(--ease); }
+a.trip-fig:hover img { transform: scale(1.015); }
+.trip-cap { display: block; margin-top: 12px; font-size: 14px; letter-spacing: .12em; color: var(--ink2); }
+a.trip-fig:hover .trip-cap { color: var(--accent-t); }
+@media (max-width: 560px) {
+  .fgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
+  .fcard-img { height: 92px; }
+  .fcard-img img { max-height: 84px; }
+  .fcard h3 { font-size: 16px; letter-spacing: .06em; }
+  .fcard-d { font-size: 12.5px; line-height: 1.75; }
+  .fcard-l { font-size: 12.5px; }
+}

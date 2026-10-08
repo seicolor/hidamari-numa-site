@@ -53,7 +53,7 @@ for i, k in enumerate(order):
     cards.append(f"""      <li class="fcard rv{' secret' if legend else ''}">
         <div class="fcard-img"><img src="img/fish/{k}.webp" width="{im.width}" height="{im.height}" alt="{html.escape(alt)}" loading="lazy"></div>
         <p class="fcard-no">{no}</p>
-        <h3>{html.escape(name)}</h3>
+        <h3>{html.escape(name).replace('エンゼルフィッシュ', '<wbr>エンゼルフィッシュ').replace('ムラサメモンガラ', 'ムラサメ<wbr>モンガラ')}</h3>
         {f'<p class="fcard-l" lang="la">{html.escape(latin)}</p>' if latin else ''}
         <p class="fcard-d">{html.escape(desc)}</p>
         {f'<p class="fcard-s">{size}</p>' if size else ''}

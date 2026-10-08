@@ -46,3 +46,31 @@
 .splay .lede { margin-inline: auto; }
 .splay-a { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
 .splay-s { margin-top: 16px; font-size: 13px; letter-spacing: .1em; color: var(--ink2); }
+
+/* スクロールで飛ぶ旅 */
+.fly { position: relative; height: 340vh; }
+.fly-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+#flyglobe { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.fly-tx { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; pointer-events: none; text-shadow: 0 2px 16px rgba(0, 0, 0, .7); }
+.fly-tx > * { max-width: 25em; }
+.fly-steps { list-style: none; margin: 28px 0 0; padding: 0; display: grid; }
+.fly-steps li { grid-area: 1 / 1; color: var(--cream2); font-size: 15px; line-height: 1.95; opacity: 0; transform: translateY(14px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+.fly-steps li b { display: block; color: var(--cream); font-size: clamp(20px, 2vw, 26px); font-weight: 500; letter-spacing: .16em; margin-bottom: 6px; }
+.fly-steps li.on { opacity: 1; transform: none; }
+.fly-meter { margin: 30px 0 0; display: flex; gap: clamp(18px, 3vw, 40px); font-variant-numeric: tabular-nums; }
+.fly-meter dt { font-size: 12px; letter-spacing: .14em; color: var(--cream2); }
+.fly-meter dd { margin: 4px 0 0; font-size: 15px; letter-spacing: .06em; color: var(--cream); white-space: nowrap; }
+.fly-meter em { font-style: normal; font-size: clamp(26px, 2.6vw, 34px); letter-spacing: .02em; }
+.fly-dl { margin-top: 18px; display: inline-flex; align-self: flex-start; padding: 4px 12px; border: 1px solid rgba(255, 198, 110, .6); border-radius: 999px; font-size: 12.5px; letter-spacing: .16em; color: #ffd696; opacity: 0; transition: opacity .4s; }
+.fly-dl.on { opacity: 1; }
+.fly-stamp { position: absolute; z-index: 3; width: clamp(110px, 12vw, 170px); right: clamp(20px, 7vw, 120px); bottom: clamp(24px, 9vh, 110px); opacity: 0; transform: scale(1.6) rotate(-14deg); transition: opacity .25s, transform .35s cubic-bezier(.3, 1.6, .5, 1); filter: drop-shadow(0 6px 18px rgba(0, 0, 0, .45)); }
+.fly-stamp.on { opacity: .92; transform: scale(1) rotate(-8deg); }
+@media (max-width: 860px) {
+  .fly-tx { justify-content: flex-end; padding-bottom: 28px; }
+  .fly-tx .h2 { font-size: 24px; }
+  .fly-steps { margin-top: 14px; }
+  .fly-steps li { font-size: 13.5px; line-height: 1.8; }
+  .fly-meter { margin-top: 14px; }
+  .fly-stamp { top: 84px; bottom: auto; right: 16px; width: 96px; }
+}
+@media (prefers-reduced-motion: reduce) { .fly-steps li, .fly-stamp { transition: none; } }

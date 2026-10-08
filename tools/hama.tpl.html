@@ -74,19 +74,30 @@
 </section>
 
 <!-- 入り江の一日 -->
-<section class="day dark" aria-labelledby="day-h">
-  <div class="wrap">
-    <p class="kick rv"><span class="num">One day</span>入り江の一日</p>
-    <h2 class="h2 rv" id="day-h">朝の凪から、夜の月の道まで。</h2>
-    <p class="lede rv">時間はゆっくり流れて、空も海の色も、魚の食いも変わっていきます。旅の地図から着いたときは、現地のいまの時刻から。</p>
+<section class="day dark" id="day" aria-labelledby="day-h">
+  <div class="day-stage">
+    <div class="day-pics" aria-hidden="true">
+      <img src="img/view-morning-1600.webp" width="1600" height="900" alt="" loading="lazy">
+      <img src="img/view-beach-1600.webp" width="1600" height="900" alt="" loading="lazy">
+      <img src="img/view-rain-1600.webp" width="1600" height="900" alt="" loading="lazy">
+      <img src="img/view-sunset-beach-1600.webp" width="1600" height="900" alt="" loading="lazy">
+      <img src="img/view-night-1600.webp" width="1600" height="900" alt="" loading="lazy">
+    </div>
+    <div class="day-tx wrap">
+      <p class="kick"><span class="num">One day</span>入り江の一日</p>
+      <h2 class="h2" id="day-h">朝の凪から、夜の月の道まで。</h2>
+      <p class="day-clock" aria-hidden="true"><span id="dayClock">07:00</span></p>
+      <ol class="day-l">
+        <li><b>朝</b>凪いで、水がいちばん澄む</li>
+        <li><b>昼</b>貿易風。水面に光の道</li>
+        <li><b>にわか雨</b>大きな魚が動きだす</li>
+        <li><b>夕</b>空がオレンジに染まる。ほら貝の音</li>
+        <li><b>夜</b>電気ウキの灯り。ヤモリの声</li>
+      </ol>
+      <p class="day-note">時間はゆっくり流れて、空も海の色も、魚の食いも変わっていきます。旅の地図から着いたときは、現地のいまの時刻から。</p>
+    </div>
+    <div class="day-bar" aria-hidden="true"><i id="dayBar"></i></div>
   </div>
-  <ol class="strip" aria-label="一日の景色">
-    <li class="rv"><figure><img src="img/view-morning-1000.webp" width="1000" height="563" alt="朝の入り江。やわらかな光と、凪いだ海" loading="lazy"><figcaption><span class="num">07:00</span>朝　凪いで、水がいちばん澄む</figcaption></figure></li>
-    <li class="rv"><figure><img src="img/view-beach-1000.webp" width="1000" height="563" alt="昼すぎの入り江。高い太陽が、水面に光の道をつくる" loading="lazy"><figcaption><span class="num">13:00</span>昼　貿易風。水面に光の道</figcaption></figure></li>
-    <li class="rv"><figure><img src="img/view-sunset-beach-1000.webp" width="1000" height="563" alt="夕暮れの入り江。島のあいだに沈む太陽と、オレンジ色の空" loading="lazy"><figcaption><span class="num">18:55</span>夕　空がオレンジに染まる。ほら貝の音</figcaption></figure></li>
-    <li class="rv"><figure><img src="img/view-night-1000.webp" width="1000" height="563" alt="夜の入り江。暗い海に、ウキの小さな光" loading="lazy"><figcaption><span class="num">21:00</span>夜　電気ウキの灯り。ヤモリの声</figcaption></figure></li>
-    <li class="rv"><figure><img src="img/view-rain-1000.webp" width="1000" height="563" alt="にわか雨の入り江。灰色の空と、雨に煙る島" loading="lazy"><figcaption><span class="num">15:00</span>にわか雨　大きな魚が動きだす</figcaption></figure></li>
-  </ol>
 </section>
 
 <!-- 海 -->
@@ -137,7 +148,7 @@
       <p class="lede rv">ゲームの右上の「地図」から、秋田の山あいの「ひだまり沼」へ出かけられます。紙飛行機が太平洋をこえ、着くと日付入りの旅のはんこ。図鑑や記録は、釣り場ごとに別々です。</p>
       <p class="rv trip-a"><a class="pcard-more" href="../">ひだまり沼のページへ →</a>　<a class="pcard-more" href="../series/">シリーズの入口へ →</a></p>
     </div>
-    <figure class="trip-fig rv"><img src="img/map-1000.webp" width="1000" height="563" alt="ゲームの中の旅の地図。夜の地球儀に、ひだまり沼とひだまり浜のピン" loading="lazy"></figure>
+    <a class="trip-fig rv" href="../series/#fly"><img src="../series/og.jpg" width="1200" height="630" alt="夜の地球儀に、ひだまり沼（秋田）とひだまり浜（ハワイ）のピン。ふたつの釣り場のゲーム画面" loading="lazy"><span class="trip-cap">シリーズの入口で、スクロールしながら旅をする →</span></a>
   </div>
 </section>
 
@@ -156,7 +167,7 @@
         <li><span>遊べる環境</span>PC・スマホ・タブレットのブラウザ</li>
         <li><span>操作</span>押し続けて、はなして投げる。ウキが沈んだら合わせる</li>
         <li><span>釣り場の切りかえ</span>右上の「地図」から（沼と浜）</li>
-        <li><span>ことば</span>日本語</li>
+        <li><span>ことば</span>日本語・English（ブラウザの言語で自動。設定で切りかえ）</li>
       </ul>
     </div>
   </div>
