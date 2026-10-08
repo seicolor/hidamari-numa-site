@@ -1,4 +1,5 @@
 // 竿（リール竿 / へら竿）・ウキ・釣り糸
+import { L } from './i18n.js';
 import * as THREE from 'three';
 import { clamp, lerp, TAU, damp, hexToLinear, mulberry32 } from './util.js';
 import { canvasTexture } from './textures.js';
@@ -12,18 +13,18 @@ const lin = (h) => hexToLinear(h);
 // 竿の種類。リール竿は遠投とリール巻き、へら竿（のべ竿）はリールなしで手前を狙い、竿をためて寄せる。
 export const ROD_TYPES = {
   reel: {
-    id: 'reel', name: 'リール竿', sub: '遠くまで投げて、リールで巻く',
+    id: 'reel', name: L('リール竿', 'Reel rod'), sub: L('遠くまで投げて、リールで巻く', 'Cast far and reel in'),
     N: 11, length: 2.9, grip: 1, r0: 0.0125, r1: 0.0028, weightExp: 2.3, tex: 'graphite', reel: true, guides: true,
     cast: { min: 5, max: 33, flight0: 0.55, flightK: 0.026, h0: 2.2, hK: 0.12, charge: 1.2, minWater: 3 },
     pose: { idle: 0.56, wind: 1.62, cast: 0.34, float: 0.42, fightBase: 0.72, fightGain: 0.3, bendIdle: 0.1, bendWind: 0.55, bendFloat: 0.15, bendBite: 0.5, bendFightBase: 0.2, bendFightGain: 1.5 },
-    reelSpeedK: 1, pullK: 1, maxDist: 60, landDist: 2.5, staminaK: 1, attract: 1, bobber: 'round', splash: 1, fightHint: '巻いている… ゲージを見ながら', reelHint: '巻こう！（長押し）',
+    reelSpeedK: 1, pullK: 1, maxDist: 60, landDist: 2.5, staminaK: 1, attract: 1, bobber: 'round', splash: 1, fightHint: L('巻いている… ゲージを見ながら', 'Reeling… watch the gauge'), reelHint: L('巻こう！（長押し）', 'Reel in! (hold)'),
   },
   hera: {
-    id: 'hera', name: 'へら竿', sub: 'リールなし。手前をそっと狙う',
+    id: 'hera', name: L('へら竿', 'Hera pole'), sub: L('リールなし。手前をそっと狙う', 'No reel. Fish close in, gently'),
     N: 18, length: 4.7, grip: 1, r0: 0.0108, r1: 0.0021, weightExp: 1.55, tex: 'lacquer', reel: false, guides: false,
     cast: { min: 4.4, max: 8.8, flight0: 0.45, flightK: 0.035, h0: 1.4, hK: 0.1, charge: 0.9, minWater: 3 },
     pose: { idle: 0.64, wind: 1.28, cast: 0.5, float: 0.5, fightBase: 0.8, fightGain: 0.4, bendIdle: 0.14, bendWind: 0.5, bendFloat: 0.2, bendBite: 0.6, bendFightBase: 0.32, bendFightGain: 1.9 },
-    reelSpeedK: 0.5, pullK: 1.12, maxDist: 9.6, landDist: 3.3, staminaK: 1.35, attract: 1.9, bobber: 'hera', splash: 0.45, fightHint: '竿をためている… ゲージを見ながら', reelHint: '竿をたてて寄せよう！（長押し）',
+    reelSpeedK: 0.5, pullK: 1.12, maxDist: 9.6, landDist: 3.3, staminaK: 1.35, attract: 1.9, bobber: 'hera', splash: 0.45, fightHint: L('竿をためている… ゲージを見ながら', 'Holding the rod… watch the gauge'), reelHint: L('竿をたてて寄せよう！（長押し）', 'Raise the rod and draw it in! (hold)'),
   },
 };
 

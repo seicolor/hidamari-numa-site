@@ -1,4 +1,5 @@
 // ひだまり浜の魚種データ（日本語）。共通の計算は ../species.js
+import { EN } from '../i18n.js';
 //  ハワイの入り江にすむ魚を中心に。ヤッコ・ハギ・ツノダシ・チョウチョウウオなど、見ばえのする魚を多めに。
 //  体の絵・形は ../reeffish.js
 import '../reeffish.js';
@@ -182,4 +183,54 @@ export function tideFactor(id) {
   if (id === 'papio' || id === 'nushi') return (0.8 + 0.4 * Math.max(0, r) + 0.15 * Math.abs(r)) * (1 + 0.18 * sm(0.7, 1.2, w));
   if (id === 'aholehole') return 0.88 + 0.25 * Math.abs(r);
   return (0.85 + 0.25 * Math.abs(r) + 0.1 * l) * (1 - 0.12 * sm(1.2, 1.6, w));
+}
+
+// ---------------------------------------------------------------------------
+// 英語（ruby の欄にはハワイ名。ハワイ名がよく知られていない魚は空）
+const EN_TEXT = {
+  bait: {
+    worm: ['Krill', 'A classic that draws most fish'],
+    dough: ['Nori Bread', 'For algae eaters like tangs and parrotfish'],
+    gluten: ['Mysid Shrimp', 'For small mouths — angelfish and butterflyfish'],
+  },
+  fish: {
+    aholehole: ['Hawaiian Flagtail', 'Āholehole', 'A familiar face of the cove. From dusk into night it comes into the shallows in silvery schools.'],
+    himeSuzume: ['Blackfin Chromis', '', 'One of the most common little fish on Hawaiian reefs. Yellow flanks with rows of tiny blue dots, and a black lower tail and anal fin. Schools hover just above the rocks, picking plankton from the current. Its mouth is small, so use mysid shrimp.'],
+    kiiroHagi: ['Yellow Tang', 'Lauʻipala', 'A thin, bright yellow disc. It picks algae off the rocks with its pointed snout and defends itself with the white, scalpel-like spine at the base of its tail. Loves nori bread.'],
+    muramasa: ['Reef Triggerfish', 'Humuhumunukunukuāpuaʻa', 'The state fish of Hawaiʻi. Its long name means “triggerfish with a snout like a pig”. It bites the bait hard with its small mouth.'],
+    hashinaga: ['Forcepsfish', 'Lauwiliwilinukunukuʻoiʻoi', 'It plucks tiny worms from cracks in the coral with its tweezer-like snout. Dazzling yellow with a black head — and one of the longest names in Hawaiian.'],
+    tsunodashi: ['Moorish Idol', 'Kihikihi', 'White, black and yellow bands and a long, trailing dorsal fin. Seeing one is said to bring good luck. Very cautious about bait.'],
+    potter: ['Potter’s Angelfish', '', 'A small angelfish found only in Hawaiʻi and Johnston Atoll. Orange in front, blue-and-black stripes behind. Lives deep, near the coral.'],
+    hifuki: ['Flame Angelfish', '', 'A small angelfish, red as a flame, with thin black bars and black fins edged in blue. It usually lives on deeper reef slopes — a rare, almost mythical find in the cove. On bright, sunny middays it peeks out from the coral.'],
+    uhu: ['Redlip Parrotfish', 'Uhu', 'It scrapes algae off the coral with its beak-like teeth and turns the rock into white sand. Big males are green, darker toward the front, with a lyre-shaped tail. It pulls much harder than it looks.'],
+    papio: ['Giant Trevally (young)', 'Pāpio', 'A young giant trevally — when it grows up it is called ulua. At dawn and dusk it chases small fish into the cove. Fast, and it runs.'],
+    nushi: ['Ulua, Lord of the Sea', 'Ulua', 'A great giant trevally that has roamed the open ocean for decades. During a night-time shower it comes over the reef into the deep water of the cove.', 'On a rainy night, sink krill deep and a huge shadow draws near… or so the rumour goes.'],
+    boot: ['Beach Sandal', 'Slippah', 'Someone lost this. In Hawaiʻi they call them “slippahs”. A hermit crab may have been thinking of moving in…'],
+  },
+  bite: {
+    himeSuzume: 'Busy little pecks — a school crowds in and fights over the bait',
+    aholehole: 'Fine little taps, then the bobber slides under',
+    kiiroHagi: 'The bobber floats up, then slowly sinks (it grazes the bait like algae)',
+    muramasa: 'Hard bites — gabu, gabu — then the bobber is dragged under',
+    hashinaga: 'Very tiny pecks. When the bobber twitches, strike',
+    tsunodashi: 'The bobber sways. Hesitantly, it sinks a little',
+    potter: 'Tiny trembles, then the bobber lifts (a lift bite)',
+    hifuki: 'The faintest tick. Don’t take your eyes off the bobber',
+    uhu: 'The bobber is drawn slowly, then pulled down deep',
+    papio: 'One sudden strike that snatches the bobber away',
+    nushi: 'The bobber is slowly, slowly dragged down into the depths…',
+  },
+  quest: {
+    shallow: 'Hint: flagtails and triggerfish stay in the shallows',
+    deep: 'Hint: angelfish and parrotfish stay deep. Aim near the coral',
+    rare: ' / bright midday, deep, near the coral',
+    titles: ['Lord of the Cove', 'Cove Master', 'Cove Regular', 'Familiar Face', 'Apprentice Angler'],
+  },
+};
+if (EN) {
+  for (const [id, [n, d]] of Object.entries(EN_TEXT.bait)) Object.assign(BAITS[id], { name: n, desc: d });
+  for (const [id, [n, r, d, rumor]] of Object.entries(EN_TEXT.fish)) Object.assign(SPECIES[id], { name: n, ruby: r, desc: d }, rumor ? { rumor } : {});
+  for (const [id, t] of Object.entries(EN_TEXT.bite)) SPECIES[id].biteText = t;
+  QUEST.shallow.hint = EN_TEXT.quest.shallow; QUEST.deep.hint = EN_TEXT.quest.deep; QUEST.rare.hint = EN_TEXT.quest.rare;
+  QUEST.titles.forEach((t, i) => { t[1] = EN_TEXT.quest.titles[i]; });
 }

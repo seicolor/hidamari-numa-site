@@ -1,5 +1,6 @@
 // 今日のお題（日替わり）。日付から決まるので、同じ日はだれでも同じお題。
 //  お題が2つ: ふつうのお題と、ちょっと難しい「大物のお題」。達成すると「釣果の印」がたまる。
+import { L } from './i18n.js';
 import { mulberry32 } from './util.js';
 import { PLACE } from './place.js';
 import { SPECIES, BAITS, layerText, QUEST } from './species.js';
@@ -24,7 +25,7 @@ function cmAbove(sp, p) {
   return Math.round(sp.cm[0] + (sp.cm[1] - sp.cm[0]) * q);
 }
 const bestBait = (sp) => Object.entries(sp.bait).sort((a, b) => b[1] - a[1])[0][0];
-const spHint = (sp) => `ヒント: ${BAITS[bestBait(sp)].name} ／ ${layerText(sp)}`;
+const spHint = (sp) => L(`ヒント: ${BAITS[bestBait(sp)].name} ／ ${layerText(sp)}`, `Hint: ${BAITS[bestBait(sp)].name} / ${layerText(sp)}`);
 
 const pick = (rng, a) => a[Math.floor(rng() * a.length)];
 
@@ -34,19 +35,19 @@ function makeMain(rng) {
     const id = pick(rng, QUEST.count);
     const sp = SPECIES[id];
     const n = QUEST.countN[id] ?? QUEST.countDefault;
-    return { kind: 'count', sp: id, goal: n, text: `${sp.name}を ${n}匹 釣ろう`, hint: spHint(sp) };
+    return { kind: 'count', sp: id, goal: n, text: L(`${sp.name}を ${n}匹 釣ろう`, `Catch ${n} × ${sp.name}`), hint: spHint(sp) };
   }
   if (t === 'size') {
     const id = pick(rng, QUEST.size);
     const sp = SPECIES[id];
     const cm = cmAbove(sp, 0.3);
-    return { kind: 'size', sp: id, cm, goal: 1, text: `${sp.name} ${cm}cm 以上を釣ろう`, hint: spHint(sp) };
+    return { kind: 'size', sp: id, cm, goal: 1, text: L(`${sp.name} ${cm}cm 以上を釣ろう`, `Catch a ${sp.name} of ${cm} cm or more`), hint: spHint(sp) };
   }
-  if (t === 'variety') return { kind: 'variety', goal: 3, text: '3種類の魚を釣ろう', hint: 'ヒント: エサやウキ下をいろいろ変えてみよう' };
-  if (t === 'shallow') return { kind: 'depth', max: QUEST.shallow.max, goal: 2, text: `ウキ下 ${QUEST.shallow.max}m 以内の浅いタナで 2匹釣ろう`, hint: QUEST.shallow.hint };
-  if (t === 'deep') return { kind: 'depth', min: QUEST.deep.min, goal: 1, text: `ウキ下 ${QUEST.deep.min}m 以上の深いタナで 1匹釣ろう`, hint: QUEST.deep.hint };
+  if (t === 'variety') return { kind: 'variety', goal: 3, text: L('3種類の魚を釣ろう', 'Catch 3 different species'), hint: L('ヒント: エサやウキ下をいろいろ変えてみよう', 'Hint: try different baits and depths') };
+  if (t === 'shallow') return { kind: 'depth', max: QUEST.shallow.max, goal: 2, text: L(`ウキ下 ${QUEST.shallow.max}m 以内の浅いタナで 2匹釣ろう`, `Catch 2 fish at a depth of ${QUEST.shallow.max} m or less`), hint: QUEST.shallow.hint };
+  if (t === 'deep') return { kind: 'depth', min: QUEST.deep.min, goal: 1, text: L(`ウキ下 ${QUEST.deep.min}m 以上の深いタナで 1匹釣ろう`, `Catch a fish at a depth of ${QUEST.deep.min} m or more`), hint: QUEST.deep.hint };
   const b = pick(rng, ['worm', 'dough', 'gluten']);
-  return { kind: 'bait', bait: b, goal: 3, text: `${BAITS[b].name}で 3匹釣ろう`, hint: 'ヒント: 魚によってエサの好みがちがう' };
+  return { kind: 'bait', bait: b, goal: 3, text: L(`${BAITS[b].name}で 3匹釣ろう`, `Catch 3 fish with ${BAITS[b].name}`), hint: L('ヒント: 魚によってエサの好みがちがう', 'Hint: each fish has its favorite bait') };
 }
 
 function makeBonus(rng, main) {
@@ -55,16 +56,16 @@ function makeBonus(rng, main) {
     const id = pick(rng, QUEST.big);
     const sp = SPECIES[id];
     const cm = cmAbove(sp, 0.16);
-    return { kind: 'size', sp: id, cm, goal: 1, text: `${sp.name} ${cm}cm 以上の大物を釣ろう`, hint: spHint(sp) };
+    return { kind: 'size', sp: id, cm, goal: 1, text: L(`${sp.name} ${cm}cm 以上の大物を釣ろう`, `Land a big ${sp.name} of ${cm} cm or more`), hint: spHint(sp) };
   }
-  if (t === 'rare') return { kind: 'count', sp: QUEST.rare.id, goal: 1, text: `${SPECIES[QUEST.rare.id].name}を 1匹 釣ろう`, hint: `${spHint(SPECIES[QUEST.rare.id])}${QUEST.rare.hint}` };
+  if (t === 'rare') return { kind: 'count', sp: QUEST.rare.id, goal: 1, text: L(`${SPECIES[QUEST.rare.id].name}を 1匹 釣ろう`, `Catch a ${SPECIES[QUEST.rare.id].name}`), hint: `${spHint(SPECIES[QUEST.rare.id])}${QUEST.rare.hint}` };
   if (t === 'many') {
     const id = QUEST.manyAvoid[main.sp] || pick(rng, QUEST.many);
     const sp = SPECIES[id];
     const n = QUEST.manyN[id] ?? QUEST.manyDefault;
-    return { kind: 'count', sp: id, goal: n, text: `${sp.name}を ${n}匹 釣ろう`, hint: spHint(sp) };
+    return { kind: 'count', sp: id, goal: n, text: L(`${sp.name}を ${n}匹 釣ろう`, `Catch ${n} × ${sp.name}`), hint: spHint(sp) };
   }
-  return { kind: 'variety', goal: 5, text: '5種類の魚を釣ろう', hint: 'ヒント: 浅場・深場・底ぎわをめぐろう' };
+  return { kind: 'variety', goal: 5, text: L('5種類の魚を釣ろう', 'Catch 5 different species'), hint: L('ヒント: 浅場・深場・底ぎわをめぐろう', 'Hint: try the shallows, the deep water and the bottom') };
 }
 
 // その日のお題を作る
@@ -74,7 +75,7 @@ export function makeDaily(key) {
   let bonus = makeBonus(rng, main);
   // 同じようなお題にならないように
   for (let i = 0; i < 6 && bonus.kind === main.kind && bonus.sp === main.sp && bonus.goal <= main.goal; i++) bonus = makeBonus(rng, main);
-  return [{ ...main, bonus: false, label: 'お題' }, { ...bonus, bonus: true, label: '大物のお題' }];
+  return [{ ...main, bonus: false, label: L('お題', 'Task') }, { ...bonus, bonus: true, label: L('大物のお題', 'Big-fish task') }];
 }
 
 // 釣った魚がお題の条件に合うか
@@ -148,10 +149,10 @@ export class Daily {
   summary() {
     this.refresh();
     const i = this.list.findIndex((c, k) => !this.st.done[k]);
-    if (i < 0) return { tag: 'お題', text: 'すべて達成！', done: true, all: true };
+    if (i < 0) return { tag: L('お題', 'Task'), text: L('すべて達成！', 'All done!'), done: true, all: true };
     const c = this.list[i];
     const g = c.goal > 1 ? ` ${this.progress(i)}/${c.goal}` : '';
-    return { tag: c.bonus ? '大物' : 'お題', text: `${c.text}${g}`, done: false, all: false, i };
+    return { tag: c.bonus ? L('大物', 'Big') : L('お題', 'Task'), text: `${c.text}${g}`, done: false, all: false, i };
   }
 
   stampCount() { return Object.values(this.save.data.stamps).filter((v) => v > 0).length; }
@@ -192,10 +193,10 @@ export class Daily {
   shareText() {
     this.refresh();
     const mark = (i) => (this.st.done[i] ? '✅' : '⬜');
-    const lines = [`${PLACE.title} ${this.key} 今日のお題`];
-    this.list.forEach((c, i) => lines.push(`${mark(i)} ${c.text}${c.goal > 1 && !this.st.done[i] ? `（${this.progress(i)}/${c.goal}）` : ''}`));
+    const lines = [L(`${PLACE.title} ${this.key} 今日のお題`, `${PLACE.title} ${this.key} Today's tasks`)];
+    this.list.forEach((c, i) => lines.push(`${mark(i)} ${c.text}${c.goal > 1 && !this.st.done[i] ? L(`（${this.progress(i)}/${c.goal}）`, ` (${this.progress(i)}/${c.goal})`) : ''}`));
     const s = this.streak();
-    if (s > 0) lines.push(`🎣 ${s}日連続`);
+    if (s > 0) lines.push(L(`🎣 ${s}日連続`, `🎣 ${s}-day streak`));
     return lines.join('\n');
   }
 }

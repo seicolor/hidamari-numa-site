@@ -5,6 +5,7 @@
 //   到着（次のページ）: 同じところから飛行を続ける。読み込みの進みが、そのまま飛行機の進みになる。
 //                      読み込みがおわると降りていき、景色が円く開いて「ようこそ」と、はんこが押される。
 // このファイルは index.html から main.js より先に読み込む（重い three.js を待たずに、到着の続きを描きはじめるため）。
+import { L, NUM_LOCALE } from './i18n.js';
 import { PLACE_ID, PLACES, PLACE_IDS, SOON, FIRST_VISIT, LAST_PLACE } from './place.js';
 import { LAND } from './worlddots.js';
 
@@ -35,14 +36,14 @@ function parts(tz, d = new Date()) {
 export function localHour(tz, d = new Date()) { try { const q = parts(tz, d); return q.h + q.mi / 60; } catch (e) { return d.getHours() + d.getMinutes() / 60; } }
 function localTime(tz) { const h = localHour(tz), hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`; }
 function tzOffset(tz, d = new Date()) { try { const q = parts(tz, d); return Math.round((Date.UTC(q.y, q.mo - 1, q.d, q.h, q.mi) - d.getTime()) / 36e5); } catch (e) { return 0; } }
-const partOfDay = (h) => (h < 4.5 ? '夜' : h < 10 ? '朝' : h < 15.5 ? '昼' : h < 18.5 ? '夕方' : '夜');
+const partOfDay = (h) => (h < 4.5 ? L('夜', 'night') : h < 10 ? L('朝', 'morning') : h < 15.5 ? L('昼', 'day') : h < 18.5 ? L('夕方', 'evening') : L('夜', 'night'));
 const ymd = (d) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 function ago(ms) {
   if (!ms) return '—';
   const a = new Date(); a.setHours(0, 0, 0, 0);
   const b = new Date(ms); b.setHours(0, 0, 0, 0);
   const n = Math.round((a - b) / 864e5);
-  return n <= 0 ? 'きょう' : n === 1 ? 'きのう' : n < 30 ? `${n}日前` : ymd(new Date(ms));
+  return n <= 0 ? L('きょう', 'today') : n === 1 ? L('きのう', 'yesterday') : n < 30 ? L(`${n}日前`, `${n} days ago`) : ymd(new Date(ms));
 }
 
 // ---- 太陽の真下（いまの時刻）・大円
@@ -171,20 +172,20 @@ class WorldMap {
       const P = PLACES[id], g = P.geo;
       return `<button type="button" class="wc-card${id === LAST_PLACE ? ' last' : ''}" data-id="${id}">
         <span class="wc-seal" aria-hidden="true">${esc(g.mark)}</span>
-        ${id === LAST_PLACE ? '<span class="wc-last">前回の釣り場</span>' : ''}
+        ${id === LAST_PLACE ? `<span class="wc-last">${L('前回の釣り場', 'Last visited')}</span>` : ''}
         <span class="wc-nm">${esc(P.title)}</span>
         <span class="wc-rg">${esc(g.region)}</span>
         <span class="wc-ld">${P.lead}</span>
-        <span class="wc-tm">現地 いま ${localTime(g.tz)}（${partOfDay(localHour(g.tz))}）</span>
-        <span class="wc-go">ここから始める →</span>
+        <span class="wc-tm">${L('現地 いま', 'Local time')} ${localTime(g.tz)}${L(`（${partOfDay(localHour(g.tz))}）`, ` (${partOfDay(localHour(g.tz))})`)}</span>
+        <span class="wc-go">${L('ここから始める', 'Start here')} →</span>
       </button>`;
     };
     el.innerHTML = `
       <div class="wc-in">
-        <div class="wc-k">ひだまりシリーズ</div>
-        <h2 id="wcT">どちらの釣り場から始めますか</h2>
+        <div class="wc-k">${L('ひだまりシリーズ', 'The Hidamari series')}</div>
+        <h2 id="wcT">${L('どちらの釣り場から始めますか', 'Where would you like to fish?')}</h2>
         <div class="wc-row">${PLACE_IDS.map(card).join('')}</div>
-        <p class="wc-note">あとから、右上の「地図」で、いつでも行き来できます。図鑑や記録は、釣り場ごとに別です。</p>
+        <p class="wc-note">${L('あとから、右上の「地図」で、いつでも行き来できます。図鑑や記録は、釣り場ごとに別です。', 'You can travel between them anytime with “Map” at the top right. Each spot keeps its own field guide and records.')}</p>
       </div>`;
     document.body.append(el);
     requestAnimationFrame(() => el.classList.add('in'));
@@ -273,17 +274,17 @@ class WorldMap {
     el.hidden = true;
     el.setAttribute('role', 'dialog');
     el.setAttribute('aria-modal', 'true');
-    el.setAttribute('aria-label', '旅の地図');
+    el.setAttribute('aria-label', L('旅の地図', 'Travel map'));
     el.innerHTML = `
       <div class="wm-sky">
-        <canvas class="wm-cv" aria-label="釣り場の地図。ドラッグで地球をまわせます"></canvas>
-        <div class="wm-top"><b>旅の地図</b><span class="wm-where"></span><span class="wm-clock"></span></div>
-        <button type="button" class="wm-x" aria-label="地図をとじる" title="とじる (Esc)">×</button>
+        <canvas class="wm-cv" aria-label="${L('釣り場の地図。ドラッグで地球をまわせます', 'Map of the fishing spots. Drag to turn the globe')}"></canvas>
+        <div class="wm-top"><b>${L('旅の地図', 'Travel map')}</b><span class="wm-where"></span><span class="wm-clock"></span></div>
+        <button type="button" class="wm-x" aria-label="${L('地図をとじる', 'Close the map')}" title="${L('とじる', 'Close')} (Esc)">×</button>
         <div class="wm-pins"></div>
-        <div class="wm-card off" role="group" aria-label="釣り場のくわしいこと"></div>
+        <div class="wm-card off" role="group" aria-label="${L('釣り場のくわしいこと', 'About this spot')}"></div>
         <div class="wm-trip off" aria-live="polite"></div>
-        <button type="button" class="wm-ghost wm-skip" hidden>とばす</button>
-        <div class="wm-help">ドラッグで地球をまわす・ピンをえらぶ</div>
+        <button type="button" class="wm-ghost wm-skip" hidden>${L('とばす', 'Skip')}</button>
+        <div class="wm-help">${L('ドラッグで地球をまわす・ピンをえらぶ', 'Drag to turn the globe · tap a pin')}</div>
       </div>
       <div class="wm-arr" hidden>
         <svg class="wm-stamp" viewBox="0 0 200 200" aria-hidden="true"></svg>
@@ -303,8 +304,8 @@ class WorldMap {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'wm-pin' + (s.soon ? ' soon' : '');
-      b.innerHTML = s.soon ? '<i></i><span class="lb"><b>準備中</b></span>' : `<i></i><span class="lb"><b>${esc(s.name)}</b><small>${esc(s.short)}</small></span>`;
-      b.setAttribute('aria-label', s.soon ? '準備中の釣り場' : `${s.name}（${s.region}）`);
+      b.innerHTML = s.soon ? `<i></i><span class="lb"><b>${L('準備中', 'Coming soon')}</b></span>` : `<i></i><span class="lb"><b>${esc(s.name)}</b><small>${esc(s.short)}</small></span>`;
+      b.setAttribute('aria-label', s.soon ? L('準備中の釣り場', 'A spot coming soon') : L(`${s.name}（${s.region}）`, `${s.name} (${s.region})`));
       b.addEventListener('click', (e) => { e.stopPropagation(); if (this.mode === 'browse') this.select(s.id); });
       this.pinsEl.append(b);
       this.pinEls[s.id] = b;
@@ -370,7 +371,7 @@ class WorldMap {
 
   _updateWhere() {
     const p = spot(PLACE_ID);
-    this.whereEl.textContent = this.mode === 'arrive' ? `${this.travel.from.name}から、${p.name}へ` : `いまいる場所　${p.name}（${p.short}）`;
+    this.whereEl.textContent = this.mode === 'arrive' ? L(`${this.travel.from.name}から、${p.name}へ`, `From ${this.travel.from.name} to ${p.name}`) : L(`いまいる場所　${p.name}（${p.short}）`, `You are at  ${p.name} (${p.short})`);
   }
 
   // 2つの釣り場がどちらも見える向き
@@ -546,25 +547,25 @@ class WorldMap {
     this.sel = id;
     const c = this.card;
     if (s.soon) {
-      c.innerHTML = `<div class="nm">準備中</div><div class="rg">これから増える釣り場です。いまは、まだ出かけられません。</div><div class="row"><span></span><button type="button" class="wm-ghost" data-x="close">とじる</button></div>`;
+      c.innerHTML = `<div class="nm">${L('準備中', 'Coming soon')}</div><div class="rg">${L('これから増える釣り場です。いまは、まだ出かけられません。', 'A new spot on its way. You cannot travel here yet.')}</div><div class="row"><span></span><button type="button" class="wm-ghost" data-x="close">${L('とじる', 'Close')}</button></div>`;
     } else {
       const here = id === PLACE_ID;
       const sum = here && this.hooks.summary ? this.hooks.summary() : summaryOf(id);
       const st = (store.get(K_STAMP) || {})[id];
       const kept = !here && this.hooks.kept ? this.hooks.kept() : 0;
-      const zukan = sum ? (sum.total ? `${sum.got} / ${sum.total} 種` : `${sum.got} 種`) : 'まだ来ていません';
+      const zukan = sum ? (sum.total ? L(`${sum.got} / ${sum.total} 種`, `${sum.got} / ${sum.total} species`) : L(`${sum.got} 種`, `${sum.got} species`)) : L('まだ来ていません', 'Not visited yet');
       c.innerHTML = `
         <div class="nm">${esc(s.name)}</div>
         <div class="rg">${esc(s.region)}</div>
         <dl>
-          <dt>現地 いま</dt><dd>${localTime(s.tz)}（${partOfDay(localHour(s.tz))}）</dd>
-          <dt>図鑑</dt><dd>${zukan}</dd>
-          <dt>ぬし</dt><dd>${sum ? (sum.nushi ? '釣った' : 'まだ') : '—'}</dd>
-          ${here ? '' : `<dt>最後に来た日</dt><dd>${sum && sum.last ? ago(sum.last) : '—'}</dd>`}
-          <dt>旅のはんこ</dt><dd>${st ? `押した（${esc(st.first)}${st.n > 1 ? `・${st.n}回` : ''}）` : 'まだ'}</dd>
+          <dt>${L('現地 いま', 'Local time')}</dt><dd>${localTime(s.tz)}${L(`（${partOfDay(localHour(s.tz))}）`, ` (${partOfDay(localHour(s.tz))})`)}</dd>
+          <dt>${L('図鑑', 'Field guide')}</dt><dd>${zukan}</dd>
+          <dt>${L('ぬし', 'The lord')}</dt><dd>${sum ? (sum.nushi ? L('釣った', 'Caught') : L('まだ', 'Not yet')) : '—'}</dd>
+          ${here ? '' : `<dt>${L('最後に来た日', 'Last visit')}</dt><dd>${sum && sum.last ? ago(sum.last) : '—'}</dd>`}
+          <dt>${L('旅のはんこ', 'Travel stamp')}</dt><dd>${st ? L(`押した（${esc(st.first)}${st.n > 1 ? `・${st.n}回` : ''}）`, `Stamped (${esc(st.first)}${st.n > 1 ? ` · ${st.n} visits` : ''})`) : L('まだ', 'Not yet')}</dd>
         </dl>
-        ${here ? '' : `<div class="ex">着くと、現地のいまの時刻から始まります。${kept ? `びくの魚（${kept}匹）は、出かけるときに逃がします。` : ''}</div>`}
-        <div class="row">${here ? '<span class="here">いま、ここにいます</span><button type="button" class="wm-ghost" data-x="close">とじる</button>' : '<button type="button" class="wm-ghost" data-x="close">とじる</button><button type="button" class="wm-go" data-x="go">出かける →</button>'}</div>`;
+        ${here ? '' : `<div class="ex">${L('着くと、現地のいまの時刻から始まります。', 'You arrive at the current local time there. ')}${kept ? L(`びくの魚（${kept}匹）は、出かけるときに逃がします。`, `The fish in your creel (${kept}) will be released before you leave.`) : ''}</div>`}
+        <div class="row">${here ? `<span class="here">${L('いま、ここにいます', 'You are here')}</span><button type="button" class="wm-ghost" data-x="close">${L('とじる', 'Close')}</button>` : `<button type="button" class="wm-ghost" data-x="close">${L('とじる', 'Close')}</button><button type="button" class="wm-go" data-x="go">${L('出かける', 'Go')} →</button>`}</div>`;
     }
     c.classList.remove('off');
     this._cardBox = null;
@@ -600,8 +601,8 @@ class WorldMap {
     const crossDL = Math.sign(from.lon) !== Math.sign(to.lon) && Math.abs(from.lon) + Math.abs(to.lon) > 180;
     this.trip.innerHTML = `
       <div class="route"><b>${esc(from.name)}</b><span class="ar">${esc(from.short)}</span><span class="ar">→</span><b>${esc(to.name)}</b><span class="ar">${esc(to.short)}</span></div>
-      <div class="facts"><span>きょり <em class="km">0</em> km</span><span>時差 <em>${dt > 0 ? '+' : ''}${dt} 時間</em></span>${crossDL ? '<span>日付変更線をこえます</span>' : ''}<span>現地 いま <em>${localTime(to.tz)}</em></span></div>
-      <div class="ld"><div class="track"><i></i></div><span class="ldt">${this.mode === 'arrive' ? '次の釣り場を読み込んでいます' : '出発します'}</span></div>`;
+      <div class="facts"><span>${L('きょり', 'Distance')} <em class="km">0</em> km</span><span>${L('時差', 'Time difference')} <em>${dt > 0 ? '+' : ''}${dt} ${L('時間', 'h')}</em></span>${crossDL ? `<span>${L('日付変更線をこえます', 'Crossing the date line')}</span>` : ''}<span>${L('現地 いま', 'Local time')} <em>${localTime(to.tz)}</em></span></div>
+      <div class="ld"><div class="track"><i></i></div><span class="ldt">${this.mode === 'arrive' ? L('次の釣り場を読み込んでいます', 'Loading the next spot') : L('出発します', 'Setting off')}</span></div>`;
     this.trip.classList.remove('off');
     this._km = this.trip.querySelector('.km');
     this._bar = this.trip.querySelector('.track i');
@@ -611,7 +612,7 @@ class WorldMap {
   _loadUI() {
     if (!this._bar || this.mode !== 'arrive') return;
     this._bar.style.width = `${Math.round(100 * this.loadP)}%`;
-    const t = this.isLoaded ? '読み込みおわり　まもなく到着します' : this.loadText ? `読み込み中　${this.loadText}` : '次の釣り場を読み込んでいます';
+    const t = this.isLoaded ? L('読み込みおわり　まもなく到着します', 'Loaded · arriving soon') : this.loadText ? L(`読み込み中　${this.loadText}`, `Loading · ${this.loadText}`) : L('次の釣り場を読み込んでいます', 'Loading the next spot');
     if (this._ldt.textContent !== t) this._ldt.textContent = t;
   }
 
@@ -648,7 +649,7 @@ class WorldMap {
       if (tr.p >= P_HAND && !tr.sent) {
         tr.sent = true;
         this.skipBtn.hidden = true;
-        if (this._ldt) this._ldt.textContent = '次の釣り場を読み込んでいます';
+        if (this._ldt) this._ldt.textContent = L('次の釣り場を読み込んでいます', 'Loading the next spot');
         if (this.hooks.onTravel) this.hooks.onTravel(tr.to.id);
       }
       if (this._bar) this._bar.style.width = '0%';
@@ -662,7 +663,7 @@ class WorldMap {
       if (tr.p >= 1 && this.sceneOK) this._reveal();
     }
     const prog = this._camAt(tr.p);
-    if (this._km) this._km.textContent = Math.round(tr.km * prog).toLocaleString('ja-JP');
+    if (this._km) this._km.textContent = Math.round(tr.km * prog).toLocaleString(NUM_LOCALE);
     return prog;
   }
 
@@ -701,10 +702,10 @@ class WorldMap {
     const h = localHour(to.tz);
     this.arr.hidden = false;
     this.tx.innerHTML = `
-      <div class="wel">ようこそ</div>
-      <div class="big">${esc(to.name)}へ</div>
-      <div class="sub"><span>${esc(to.region)}</span><span class="sep">　・　</span><span>現地 いま ${localTime(to.tz)}（${partOfDay(h)}）</span></div>
-      <div class="acts"><button type="button" class="btn primary wm-start"><span class="seal">釣</span>はじめる</button></div>`;
+      <div class="wel">${L('ようこそ', 'Welcome to')}</div>
+      <div class="big">${L(`${esc(to.name)}へ`, esc(to.name))}</div>
+      <div class="sub"><span>${esc(to.region)}</span><span class="sep">　・　</span><span>${L('現地 いま', 'Local time')} ${localTime(to.tz)}${L(`（${partOfDay(h)}）`, ` (${partOfDay(h)})`)}</span></div>
+      <div class="acts"><button type="button" class="btn primary wm-start"><span class="seal">釣</span>${L('はじめる', 'Start')}</button></div>`;
     void this.tx.offsetWidth;
     this.tx.classList.remove('off');
     const go = this.tx.querySelector('.wm-start');

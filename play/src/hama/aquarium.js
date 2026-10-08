@@ -3,6 +3,7 @@
 // 中は、ライブロックの島が2つと、ミドリイシ・テーブル・コモンサンゴ・ハナガタ・ナガレハナ・マメスナ・ディスク・ウミキノコ・イソギンチャク・ヤギ。
 // 水の見え方: 水の中を通った長さで赤から抜けて青くなり、水面でくだけた光が網（コースティクス）と光の柱になって落ちる。
 // 前のガラスごしに少し下から見ると、水面の裏が鏡になる（全反射）。造波ポンプで水面とサンゴが行ったり来たり揺れる。
+import { L } from '../i18n.js';
 import * as THREE from 'three';
 import { G, patchMaterial, TANK_GLSL } from '../materials.js';
 import { mulberry32, clamp, lerp, smoothstep, noise2, ridged2, hexToLinear, TAU, damp, widenFov } from '../util.js';
@@ -690,7 +691,7 @@ export class Aquarium {
     this.refreshPanel();
     return this.standLabel();
   }
-  standLabel() { return this.standOn ? '台の上' : '砂の上'; }
+  standLabel() { return this.standOn ? L('台の上', 'On the stand') : L('砂の上', 'On the sand'); }
 
   // 直置きのとき: 水槽のすそに寄せた砂（まわりの浜と同じ色・同じ細かさ）
   buildBank(root, gy) {
@@ -1459,11 +1460,11 @@ export class Aquarium {
 
   // ------------------------------------------------------------------ 魚
   canAdd(sp, cm) {
-    if (!sp || sp.junk || sp.legend) return { ok: false, msg: 'この魚は水槽には入れられない' };
-    if (cm > TANK.maxCm) return { ok: false, msg: '大きすぎて、水槽には入らない' };
+    if (!sp || sp.junk || sp.legend) return { ok: false, msg: L('この魚は水槽には入れられない', 'This one cannot go in the tank') };
+    if (cm > TANK.maxCm) return { ok: false, msg: L('大きすぎて、水槽には入らない', 'Too big for the tank') };
     const n = this.tankCount();
-    if (sp.shoal) { if (n.small >= TANK.smallCap) return { ok: false, msg: `小魚がいっぱい（${TANK.smallCap}匹まで）` }; }
-    else if (n.big >= TANK.cap) return { ok: false, msg: `水槽がいっぱい（${TANK.cap}匹まで）` };
+    if (sp.shoal) { if (n.small >= TANK.smallCap) return { ok: false, msg: L(`小魚がいっぱい（${TANK.smallCap}匹まで）`, `No room for small fish (up to ${TANK.smallCap})`) }; }
+    else if (n.big >= TANK.cap) return { ok: false, msg: L(`水槽がいっぱい（${TANK.cap}匹まで）`, `The tank is full (up to ${TANK.cap})`) };
     return { ok: true };
   }
   // 飼っている数（群がる小魚は別に数える）
@@ -1864,7 +1865,7 @@ export class Aquarium {
   refreshPanel() { if (this.active && this.ctx.ui.renderTank) this.ctx.ui.renderTank(this.panelState()); }
   release(i) {
     const e = this.remove(i);
-    if (e) this.ctx.ui.toast(`${SPECIES[e.id] ? SPECIES[e.id].name : '魚'}を、海へ帰した`, 'info', 2000);
+    if (e) this.ctx.ui.toast(L(`${SPECIES[e.id] ? SPECIES[e.id].name : '魚'}を、海へ帰した`, `Released the ${SPECIES[e.id] ? SPECIES[e.id].name : 'fish'} back to the sea`), 'info', 2000);
     this.refreshPanel();
   }
   fromCreel(i) {
@@ -1875,7 +1876,7 @@ export class Aquarium {
     if (!r.ok) { this.ctx.ui.toast(r.msg, 'info', 2200); return; }
     g.keptList.splice(i, 1);
     this.ctx.ui.setKept(g.keptList.length);
-    this.ctx.ui.toast(`${SPECIES[e.id].name}を水槽に入れた`, 'info', 1800);
+    this.ctx.ui.toast(L(`${SPECIES[e.id].name}を水槽に入れた`, `Put the ${SPECIES[e.id].name} in the tank`), 'info', 1800);
     this.refreshPanel();
   }
 
@@ -2012,4 +2013,4 @@ const DIRECT_VIEWS = {
   low: { ty: 0.34, pitch: -0.1 },
 };
 const VIEW_ORDER = ['front', 'diag', 'low', 'top', 'close'];
-const VIEW_NAMES = { front: '正面', diag: 'ななめ', low: '見上げる', top: '上から', close: 'よって見る' };
+const VIEW_NAMES = { front: L('正面', 'Front'), diag: L('ななめ', 'Angled'), low: L('見上げる', 'Low'), top: L('上から', 'Top'), close: L('よって見る', 'Close-up') };

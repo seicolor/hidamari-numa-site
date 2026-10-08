@@ -1,4 +1,5 @@
 // 魚種データ（日本語）
+import { L } from './i18n.js';
 import { SEASON_ID, SEASON_NAMES } from './season.js';
 import { PLACE_ID } from './place.js';
 
@@ -57,17 +58,17 @@ export function layerFit(sp, bd, floor, shift = 1) {
 // 図鑑・ヒント用の言いかた
 export function layerText(sp) {
   if (sp.junk || !sp.layer) return '';
-  if (sp.bottom) return '底ぎわ（エサを底まで）';
+  if (sp.bottom) return L('底ぎわ（エサを底まで）', 'On the bottom (bait right down)');
   const [lo, hi] = sp.layer;
   const mid = (lo + hi) / 2;
-  const nm = mid < 0.55 ? '浅いタナ' : mid < 1.0 ? '中ほどのタナ' : mid < 1.4 ? 'やや深いタナ' : '深いタナ';
-  return `${nm}（水面から ${lo.toFixed(1)}〜${hi.toFixed(1)} m）`;
+  const nm = mid < 0.55 ? L('浅いタナ', 'Shallow') : mid < 1.0 ? L('中ほどのタナ', 'Mid-depth') : mid < 1.4 ? L('やや深いタナ', 'Fairly deep') : L('深いタナ', 'Deep');
+  return L(`${nm}（水面から ${lo.toFixed(1)}〜${hi.toFixed(1)} m）`, `${nm} (${lo.toFixed(1)}–${hi.toFixed(1)} m below the surface)`);
 }
 
 // 図鑑に出す「活性が高い時間・天気」
 export function likesOf(sp) {
-  const T = { dawn: '朝まずめ', day: '昼', dusk: '夕まずめ', night: '夜' };
-  const W = { clear: '晴れ', cloudy: 'くもり', rain: '雨' };
+  const T = { dawn: L('朝まずめ', 'dawn'), day: L('昼', 'daytime'), dusk: L('夕まずめ', 'dusk'), night: L('夜', 'night') };
+  const W = { clear: L('晴れ', 'clear'), cloudy: L('くもり', 'cloudy'), rain: L('雨', 'rain') };
   const times = Object.entries(sp.active).filter(([, v]) => v >= 1.2).map(([k]) => T[k]);
   const wx = sp.wx ? Object.entries(sp.wx).filter(([, v]) => v >= 1.2).map(([k]) => W[k]) : [];
   const poorT = Object.entries(sp.active).filter(([, v]) => v <= 0.4).map(([k]) => T[k]);
@@ -78,7 +79,7 @@ export function likesOf(sp) {
 // 季節の魚か／いまの季節にいる魚か
 export const isSeasonal = (sp) => !!sp.season;
 export const inSeason = (sp) => !sp.season || sp.season === SEASON_ID;
-export const seasonLabel = (sp) => (sp.season ? `${SEASON_NAMES[sp.season]}だけ` : '');
+export const seasonLabel = (sp) => (sp.season ? L(`${SEASON_NAMES[sp.season]}だけ`, `${SEASON_NAMES[sp.season]} only`) : '');
 
 export function weightG(sp, cm) {
   return sp.k * Math.pow(cm, 3);

@@ -1,3 +1,4 @@
+import { L } from './i18n.js';
 import './fog.js';
 import * as THREE from 'three';
 import { Atmosphere } from './atmosphere.js';
@@ -33,7 +34,7 @@ document.body.classList.add(`place-${PLACE.id}`);
   const probe = document.createElement('canvas').getContext('webgl2');
   if (!probe) {
     worldMap.abort();
-    document.getElementById('ui').innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:2;font-size:18px;letter-spacing:.1em;background:#0d1410;color:#f6eed9">このゲームは WebGL2 を使います。<br>最近の Chrome / Edge / Firefox / Safari で開いてください。</div>';
+    document.getElementById('ui').innerHTML = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:2;font-size:18px;letter-spacing:.1em;background:#0d1410;color:#f6eed9">${L('このゲームは WebGL2 を使います。<br>最近の Chrome / Edge / Firefox / Safari で開いてください。', 'This game needs WebGL2.<br>Please open it in a recent Chrome, Edge, Firefox or Safari.')}</div>`;
     throw new Error('WebGL2 is not available');
   }
 }
@@ -143,9 +144,9 @@ async function main() {
   // その場所にいる魚の体の絵だけを、先に描いておく
   const texIds = [...new Set(SPECIES_ORDER.map((id) => SPECIES[id].model || id))].filter((id) => FISH_TEXTURE_IDS.includes(id));
   for (let i = 0; i < texIds.length; i++) {
-    await step(0.64 + (0.06 * i) / texIds.length, '魚のうろこを描いています…', () => prebakeFish(texIds[i]));
+    await step(0.64 + (0.06 * i) / texIds.length, L('魚のうろこを描いています…', 'Painting fish scales…'), () => prebakeFish(texIds[i]));
   }
-  await step(0.7, '魚たちを呼んでいます…', () => {
+  await step(0.7, L('魚たちを呼んでいます…', 'Calling the fish…'), () => {
     fx = new FX(scene, atm, water, { quality });
     W.setupFX(fx);
     sim = new FishSim(scene, {
@@ -171,7 +172,7 @@ async function main() {
     // 葉のカードは、輪郭のすき間（暗い点・明るい点）が映り込みの低い解像度でちらつくので、最高画質以外は映り込みから外す
     if (quality !== 'ultra') scene.traverse((o) => { if (o.userData && o.userData.cards) water.hideInReflection.push(o); });
   });
-  await step(0.84, '図鑑をととのえています…', () => {
+  await step(0.84, L('図鑑をととのえています…', 'Tidying the field guide…'), () => {
     thumbs = makeThumbs(renderer);
     ui.setThumbs(thumbs);
   });
@@ -184,7 +185,7 @@ async function main() {
   const player = new Player(camera, canvas);
   player.enabled = false;
 
-  await step(0.92, '光をあつめています…', () => {
+  await step(0.92, L('光をあつめています…', 'Gathering the light…'), () => {
     post = new PostFX(renderer, scene, camera, { bloom: Q.bloom, godrays: Q.god, samples: Q.samples });
     if (W.setupPost) W.setupPost(post);
     resize();
@@ -224,8 +225,8 @@ async function main() {
   };
   const WX_DUR = { clear: [240, 480], cloudy: [180, 360], rain: [150, 300] }; // 秒
   const WX_MSG = {
-    'clear>cloudy': '空が曇ってきた', 'cloudy>rain': 'ぽつぽつと雨が降りだした', 'clear>rain': '急に雨が降りだした',
-    'rain>cloudy': '雨が小降りになってきた', 'cloudy>clear': '雲が切れて、日がさしてきた', 'rain>clear': '雨があがった。空が明るくなっていく',
+    'clear>cloudy': L('空が曇ってきた', 'Clouds are rolling in'), 'cloudy>rain': L('ぽつぽつと雨が降りだした', 'It is starting to rain'), 'clear>rain': L('急に雨が降りだした', 'A sudden shower'),
+    'rain>cloudy': L('雨が小降りになってきた', 'The rain is easing off'), 'cloudy>clear': L('雲が切れて、日がさしてきた', 'The clouds part and the sun comes out'), 'rain>clear': L('雨があがった。空が明るくなっていく', 'The rain has stopped. The sky is brightening'),
   };
   const wxNow = () => (atm.rain > 0.5 ? 'rain' : atm.overcast > 0.35 ? 'cloudy' : 'clear');
   const wxRand = (a, b) => a + Math.random() * (b - a);
@@ -240,9 +241,9 @@ async function main() {
   // 天気が変わったとき、その天気で動きだす魚をヒントにする（釣ったことのある魚だけ名前を出す）
   const weatherHint = (to) => {
     const known = SPECIES_ORDER.filter((id) => !SPECIES[id].junk && inSeason(SPECIES[id]) && save.data.catches[id] && save.data.catches[id].count > 0 && SPECIES[id].wx[to] >= 1.4);
-    const shallow = to === 'rain' ? '　魚が浅いタナに浮いてきそう' : '';
-    if (known.length) return `　${known.map((id) => SPECIES[id].name).join('・')}が動きだしそう${shallow}`;
-    return to === 'rain' ? '　こんな日は、ふだん会えない魚が顔を出すかも。浅いタナにも浮いてきそう' : '';
+    const shallow = to === 'rain' ? L('　魚が浅いタナに浮いてきそう', '. Fish may rise to the shallows') : '';
+    if (known.length) return L(`　${known.map((id) => SPECIES[id].name).join('・')}が動きだしそう${shallow}`, `. ${known.map((id) => SPECIES[id].name).join(', ')} may start to move${shallow}`);
+    return to === 'rain' ? L('　こんな日は、ふだん会えない魚が顔を出すかも。浅いタナにも浮いてきそう', '. On days like this, rare fish may show up, even in the shallows') : '';
   };
   let started = false;
   let hudHidden = false;
@@ -258,9 +259,9 @@ async function main() {
   life.attach(game);
   // 空の出来事（流れ星・虹・花火・遠雷）
   sky = new SkyEvents(scene, atm, {
-    onWish: () => { ui.toast('ながれぼし… ねがいごとをした（釣れそうな気がする）', 'info', 3600); audio.wish(); game.wishLuck(90); },
+    onWish: () => { ui.toast(L('ながれぼし… ねがいごとをした（釣れそうな気がする）', 'A shooting star… you made a wish (feeling lucky)'), 'info', 3600); audio.wish(); game.wishLuck(90); },
     onRainbow: () => ui.toast(PLACE.rainbowToast, 'info', 4200),
-    onFireworks: () => ui.toast('遠くで、花火が上がっている', 'info', 4200),
+    onFireworks: () => ui.toast(L('遠くで、花火が上がっている', 'Fireworks in the distance'), 'info', 4200),
     onLaunch: (d, pan) => audio.fwLaunch(d, pan),
     onBoom: (delay, size, pan) => audio.boom(delay, size, pan),
     onThunder: (delay, s, pan) => audio.thunder(delay, s, pan),
@@ -296,13 +297,13 @@ async function main() {
     onGyotaku: async (info) => {
       if (ui.gyBusy) return;
       ui.gyBusy = true;
-      ui.toast('魚拓をすっています…', 'info', 1500);
+      ui.toast(L('魚拓をすっています…', 'Making the fish print…'), 'info', 1500);
       await new Promise((r) => setTimeout(r, 40));
       try {
         const fc = renderFishCanvas(renderer, info.sp, 1600, 1000);
         const cv = await makeGyotaku(fc, { sp: info.sp, cm: info.cm, depth: info.depth ?? null, bait: (BAITS[info.bait] && BAITS[info.bait].name) || '' });
         ui.openGyotaku(cv, info);
-      } catch (e) { console.warn('gyotaku', e); ui.toast('魚拓がうまくとれませんでした', 'warn', 2200); }
+      } catch (e) { console.warn('gyotaku', e); ui.toast(L('魚拓がうまくとれませんでした', 'Could not make the fish print'), 'warn', 2200); }
       ui.gyBusy = false;
     },
     onSeason: (v) => {
@@ -335,7 +336,7 @@ async function main() {
     if (!AQ || !started) return;
     closeFraming();
     if (AQ.active) { ui.fade(() => AQ.exit()); return; }
-    if (!game.isIdle()) { ui.toast('ウキをあげてから、水槽を見に行こう', 'info', 2200); return; }
+    if (!game.isIdle()) { ui.toast(L('ウキをあげてから、水槽を見に行こう', 'Reel in first, then visit the aquarium'), 'info', 2200); return; }
     if (ui.isModalOpen()) ui.closeModal();
     ui.fade(() => AQ.enter());
   }
@@ -388,7 +389,7 @@ async function main() {
     player.fov = 80; // ゆっくり寄っていく導入
     try { await audio.init(); audio.setVolume(audio.volume); audio.uiConfirm(); } catch (e) { console.warn('audio', e); }
     ui.setHint(game.hintFor());
-    setTimeout(() => ui.toast('のんびり、いきましょう', 'info', 3200), 800);
+    setTimeout(() => ui.toast(L('のんびり、いきましょう', 'Take it easy'), 'info', 3200), 800);
   });
 
   // ---------------------------------------------------------------- 旅の地図
@@ -436,12 +437,12 @@ async function main() {
   // 画面にその形の枠が出て、枠の中がそのまま写真になる（枠の外は、まわりが少し広く見える）。
   // 撮るときは、画面の解像度とは別に、写真の大きさで描き直してから保存する（スマホで画面の解像度を下げていても、写真はきれい）。
   const PHOTO_ASPECTS = [
-    { k: 'screen', name: '画面', a: 0, title: 'いまの画面の形' },
-    { k: 'wide', name: '16:9', a: 16 / 9, title: '横長（パソコン・テレビの形）' },
-    { k: 'photo', name: '3:2', a: 3 / 2, title: '横（写真の形）' },
-    { k: 'square', name: '1:1', a: 1, title: '正方形' },
-    { k: 'insta', name: '4:5', a: 4 / 5, title: '少し縦長' },
-    { k: 'story', name: '9:16', a: 9 / 16, title: '縦長（スマホの画面の形）' },
+    { k: 'screen', name: L('画面', 'Screen'), a: 0, title: L('いまの画面の形', 'Same shape as the screen') },
+    { k: 'wide', name: '16:9', a: 16 / 9, title: L('横長（パソコン・テレビの形）', 'Wide (computer / TV)') },
+    { k: 'photo', name: '3:2', a: 3 / 2, title: L('横（写真の形）', 'Landscape (photo)') },
+    { k: 'square', name: '1:1', a: 1, title: L('正方形', 'Square') },
+    { k: 'insta', name: '4:5', a: 4 / 5, title: L('少し縦長', 'Slightly tall') },
+    { k: 'story', name: '9:16', a: 9 / 16, title: L('縦長（スマホの画面の形）', 'Tall (phone screen)') },
   ];
   let shooting = false;
   const photoKey = () => (AQ && AQ.active ? 'photoAspTank' : 'photoAsp');
@@ -555,12 +556,12 @@ async function main() {
     if (!framing || shooting) return;
     const out = renderPhoto();
     ui.frameFlash();
-    if (!out) { ui.toast('写真を保存できませんでした', 'warn', 2200); return; }
+    if (!out) { ui.toast(L('写真を保存できませんでした', 'Could not save the photo'), 'warn', 2200); return; }
     shooting = true;
     saveCanvas(out, `${PLACE.pic}-${stamp()}.jpg`, 'image/jpeg', 0.92).then((r) => {
       shooting = false;
-      if (r === 'saved') ui.toast(`写真を保存しました（${out.width}×${out.height}）`, 'info', 2000);
-      else if (r === 'failed') ui.toast('写真を保存できませんでした', 'warn', 2200);
+      if (r === 'saved') ui.toast(L(`写真を保存しました（${out.width}×${out.height}）`, `Photo saved (${out.width}×${out.height})`), 'info', 2000);
+      else if (r === 'failed') ui.toast(L('写真を保存できませんでした', 'Could not save the photo'), 'warn', 2200);
     });
   }
 
@@ -616,7 +617,7 @@ async function main() {
         const nxt = pickWeather(wxCur);
         if (nxt !== wxCur) {
           atm.setWeather(nxt);
-          ui.toast((WX_MSG[wxCur + '>' + nxt] || '空模様が変わってきた') + weatherHint(nxt), 'info', 4600);
+          ui.toast((WX_MSG[wxCur + '>' + nxt] || L('空模様が変わってきた', 'The weather is changing')) + weatherHint(nxt), 'info', 4600);
         }
         wxCur = nxt;
         wxT = wxRand(...WX_DUR[nxt]);
@@ -690,5 +691,5 @@ main().catch((e) => {
   console.error(e);
   worldMap.abort();
   const t = document.getElementById('loadtxt');
-  if (t) t.textContent = 'エラー: ' + e.message;
+  if (t) t.textContent = L('エラー: ', 'Error: ') + e.message;
 });

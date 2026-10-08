@@ -1,7 +1,8 @@
 // 季節: 春・夏・秋・冬。景色の色や木の姿、降るもの、魚の食いが、季節でかわる。
 // 選びかた: URL の ?season= → 設定（保存）→ おまかせ（今日の日付）。切りかえは読み込み直し。
+import { L } from '../i18n.js';
 export const SEASON_IDS = ['spring', 'summer', 'autumn', 'winter'];
-export const SEASON_NAMES = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' };
+export const SEASON_NAMES = { spring: L('春', 'Spring'), summer: L('夏', 'Summer'), autumn: L('秋', 'Autumn'), winter: L('冬', 'Winter') };
 
 // 日付から（3〜5月=春、6〜8月=夏、9〜11月=秋、12〜2月=冬）
 export function seasonOfDate(d = new Date()) {
@@ -26,7 +27,7 @@ export function pickSeason() {
 // 色は 0xRRGGBB。使うがわで hexToLinear などにする
 const TABLE = {
   autumn: {
-    id: 'autumn', name: '秋',
+    id: 'autumn', name: L('秋', 'Autumn'),
     // 地面（terrain.js）
     ground: { grassA: 0x6f8a34, grassB: 0x93a043, grassC: 0xb0a24e, grassDry: 0xc2aa5a, oakY: 0x9a7c2e, oakR: 0x9a4422, oakG: 0x566f2c, field: 0xb59a52, cedar: 0x274630, cedarB: 0x35563a, mud: 0x56442c },
     // 落葉樹の葉（flora.js）: 低い値→高い値のグラデーション
@@ -37,10 +38,10 @@ const TABLE = {
     hero: { kaki: [0.18, 0.28, 0.05], momiji: [0.30, 0.05, 0.02], ginkgo: [0.62, 0.30, 0.015], momiji2: [0.5, 0.12, 0.02] },
     sun: { rise: 6, set: 18, maxEl: 58 }, sky: { exposure: 1, haze: 1, cloud: 0 },
     fall: 'leaves', snow: false, dragonfly: 1, firefly: 1, frog: 0.6, fish: 1, thunder: 0.25,
-    wxNames: { clear: '晴れ', cloudy: 'くもり', rain: '雨' },
+    wxNames: { clear: L('晴れ', 'Clear'), cloudy: L('くもり', 'Cloudy'), rain: L('雨', 'Rain') },
   },
   spring: {
-    id: 'spring', name: '春',
+    id: 'spring', name: L('春', 'Spring'),
     ground: { grassA: 0x7ea845, grassB: 0x9ec04e, grassC: 0xb7c95d, grassDry: 0xc4c46a, oakY: 0xa8c460, oakR: 0xe0a3b4, oakG: 0x7fae48, field: 0x86a85c, cedar: 0x2a4d34, cedarB: 0x3a6040, mud: 0x5a4a30 },
     // 桜（ピンク〜白）と新緑がまだらに
     leaf: { mode: 'full', pal: [0xa4cc5c, 0xfcc2b4, 0xffe2d6, 0xf8b8ac, 0xfcd4c8, 0xfcc2b4, 0xffe2d6, 0xb4d46a], dull: 0xf4e0d0, dullAmt: 0.05, k: 1.3 },
@@ -50,10 +51,10 @@ const TABLE = {
     hero: { kaki: [0.24, 0.44, 0.08], momiji: [0.26, 0.46, 0.1], ginkgo: [0.34, 0.5, 0.1], momiji2: [0.85, 0.5, 0.55] },
     sun: { rise: 5.5, set: 18.5, maxEl: 56 }, sky: { exposure: 1.02, haze: 1.18, cloud: 0.05 },
     fall: 'petals', snow: false, dragonfly: 0, firefly: 0.2, frog: 1, fish: 1.08, thunder: 0.3,
-    wxNames: { clear: '晴れ', cloudy: 'くもり', rain: '雨' },
+    wxNames: { clear: L('晴れ', 'Clear'), cloudy: L('くもり', 'Cloudy'), rain: L('雨', 'Rain') },
   },
   summer: {
-    id: 'summer', name: '夏',
+    id: 'summer', name: L('夏', 'Summer'),
     ground: { grassA: 0x4f7a26, grassB: 0x5f8f2e, grassC: 0x739c38, grassDry: 0x8da043, oakY: 0x4b7f2a, oakR: 0x3f7a30, oakG: 0x2f6a24, field: 0x5c9a3a, cedar: 0x1f4026, cedarB: 0x2c5030, mud: 0x4a3c26 },
     leaf: { mode: 'full', pal: [0x346c24, 0x437d2d, 0x568f36, 0x69a043, 0x4a8530, 0x3a7428], dull: 0x4a6a28, dullAmt: 0.12, k: 1.12 },
     cedarTint: [0.95, 1, 0.95], cedarSnow: 0,
@@ -62,10 +63,10 @@ const TABLE = {
     hero: { kaki: [0.08, 0.26, 0.04], momiji: [0.10, 0.28, 0.04], ginkgo: [0.12, 0.30, 0.05], momiji2: [0.09, 0.27, 0.04] },
     sun: { rise: 4.8, set: 19.2, maxEl: 70 }, sky: { exposure: 0.97, haze: 0.9, cloud: -0.05 },
     fall: 'none', snow: false, dragonfly: 0.4, firefly: 1.2, frog: 1, fish: 1, thunder: 1,
-    wxNames: { clear: '晴れ', cloudy: 'くもり', rain: '雨' },
+    wxNames: { clear: L('晴れ', 'Clear'), cloudy: L('くもり', 'Cloudy'), rain: L('雨', 'Rain') },
   },
   winter: {
-    id: 'winter', name: '冬',
+    id: 'winter', name: L('冬', 'Winter'),
     // 雪の野原。岸の泥と小道の土だけが黒く残る
     ground: { grassA: 0xdde6ec, grassB: 0xe8eff3, grassC: 0xcdd8df, grassDry: 0xb7b198, oakY: 0xa49a84, oakR: 0x8a7e6c, oakG: 0x9a937f, field: 0xe6edf1, cedar: 0x2c4a3a, cedarB: 0x3d5c4a, mud: 0x4a3c2c },
     leaf: { mode: 'bare', pal: [], dull: 0, dullAmt: 0, k: 1 },
@@ -75,7 +76,7 @@ const TABLE = {
     hero: { kaki: [0.2, 0.18, 0.12], momiji: [0.2, 0.18, 0.12], ginkgo: [0.2, 0.18, 0.12], momiji2: [0.2, 0.18, 0.12] },
     sun: { rise: 6.9, set: 16.8, maxEl: 32 }, sky: { exposure: 1.06, haze: 1.3, cloud: 0.1 },
     fall: 'none', snow: true, dragonfly: 0, firefly: 0, frog: 0, fish: 0.6, thunder: 0,
-    wxNames: { clear: '晴れ', cloudy: 'くもり', rain: '雪' },
+    wxNames: { clear: L('晴れ', 'Clear'), cloudy: L('くもり', 'Cloudy'), rain: L('雪', 'Snow') },
   },
 };
 

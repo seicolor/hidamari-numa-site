@@ -1,4 +1,5 @@
 // 手こぎボート: 桟橋のわきにつないである。のりこんで、沖の深みや岸ぎわへこぎだせる（場所を選ぶと、こいで連れていってくれる）。
+import { L } from './i18n.js';
 import * as THREE from 'three';
 import { clamp, lerp, TAU, hexToLinear } from './util.js';
 import { pondSigned, waterDepthAt } from './terrain.js';
@@ -143,11 +144,11 @@ export class Boat {
   _makeSpots() {
     const mk = (id, name, x, z, minD, maxD, note) => { const p = this._find(x, z, minD, maxD); return { id, name, x: p.x, z: p.z, depth: p.d, note }; };
     return [
-      { id: 'pier', name: '桟橋', x: PIER.x, z: PIER.zEnd + 1.15, depth: waterDepthAt(PIER.x, PIER.zEnd - 2), note: 'もといた場所' },
-      mk('deep', '沖の深み', -2, -3, 2.6, 9, '沼のまんなか。深いところにいる大物をねらえる'),
-      mk('far', '奥の岸ぎわ', -6, -14, 0.8, 1.5, 'むこう岸のきわ。浅くて、静かな場所'),
-      mk('left', '左の岸ぎわ', -21, 5, 0.8, 1.6, '左の岸のきわ。底のものがいそう'),
-      mk('right', '右の浅場', 17, -6, 0.8, 1.5, '右の浅い入り江。小さな魚が集まる'),
+      { id: 'pier', name: L('桟橋', 'Pier'), x: PIER.x, z: PIER.zEnd + 1.15, depth: waterDepthAt(PIER.x, PIER.zEnd - 2), note: L('もといた場所', 'Where you started') },
+      mk('deep', L('沖の深み', 'Deep Middle'), -2, -3, 2.6, 9, L('沼のまんなか。深いところにいる大物をねらえる', 'The middle of the pond. Big fish wait in the deep')),
+      mk('far', L('奥の岸ぎわ', 'Far Bank'), -6, -14, 0.8, 1.5, L('むこう岸のきわ。浅くて、静かな場所', 'Along the far bank. Shallow and quiet')),
+      mk('left', L('左の岸ぎわ', 'Left Bank'), -21, 5, 0.8, 1.6, L('左の岸のきわ。底のものがいそう', 'Along the left bank. Bottom dwellers live here')),
+      mk('right', L('右の浅場', 'Right Shallows'), 17, -6, 0.8, 1.5, L('右の浅い入り江。小さな魚が集まる', 'A shallow inlet on the right. Small fish gather here')),
     ];
   }
 

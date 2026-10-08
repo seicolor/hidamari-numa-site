@@ -1,4 +1,5 @@
 // 魚拓: 釣った魚を、和紙に墨で刷ったような画像にする（保存・共有用）
+import { L, EN } from './i18n.js';
 import { mulberry32 } from './util.js';
 import { PLACE } from './place.js';
 
@@ -146,6 +147,21 @@ function vtext(ctx, str, cx, y0, size, gap = 1.12) {
   return y;
 }
 
+// 英語の縦の列: 文字を積まず、90°まわして 1 行で（本の背のように、上から下へ読む）。長いときは字を小さく
+function rtext(ctx, str, cx, y0, size, maxLen) {
+  ctx.save();
+  ctx.translate(cx, y0);
+  ctx.rotate(Math.PI / 2);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  let s = size;
+  ctx.font = `700 ${s}px ${FONT}`;
+  const w = ctx.measureText(str).width;
+  if (w > maxLen) { s = Math.max(24, Math.floor(s * maxLen / w)); ctx.font = `700 ${s}px ${FONT}`; }
+  ctx.fillText(str, 0, 0);
+  ctx.restore();
+}
+
 // 落款（朱の印）
 function seal(ctx, cx, cy, s, rnd) {
   ctx.save();
@@ -244,20 +260,27 @@ export async function makeGyotaku(fishCanvas, { sp, cm, date = new Date(), depth
   ctx.fillStyle = `rgba(${INK[0]},${INK[1]},${INK[2]},0.9)`;
   ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
   ctx.font = `700 56px ${FONT}`;
-  ctx.fillText(`全長 ${cm.toFixed(1)} cm`, left, 905);
+  ctx.fillText(L(`全長 ${cm.toFixed(1)} cm`, `Length ${cm.toFixed(1)} cm`), left, 905);
   if (depth != null) {
     ctx.font = `600 28px ${FONT}`;
     ctx.fillStyle = `rgba(${INK[0]},${INK[1]},${INK[2]},0.7)`;
-    ctx.fillText(`ウキ下 ${depth.toFixed(1)} m${bait ? `　${bait}` : ''}`, left, 950);
+    ctx.fillText(L(`ウキ下 ${depth.toFixed(1)} m${bait ? `　${bait}` : ''}`, `Depth ${depth.toFixed(1)} m${bait ? `  ·  ${bait}` : ''}`), left, 950);
   }
 
   // 右の縦書き: 魚の名前・日付・場所
   ctx.fillStyle = `rgba(${INK[0]},${INK[1]},${INK[2]},0.92)`;
-  const nameSize = sp.name.length > 4 ? 84 : 108;
-  vtext(ctx, sp.name, 1440, 130, nameSize, 1.1);
-  ctx.fillStyle = `rgba(${INK[0]},${INK[1]},${INK[2]},0.8)`;
-  vtext(ctx, eraDate(date), 1318, 140, 42, 1.2);
-  vtext(ctx, `${PLACE.title}にて`, 1250, 140, 36, 1.2);
+  if (EN) {
+    rtext(ctx, sp.name, 1440, 130, 84, 640);
+    ctx.fillStyle = `rgba(${INK[0]},${INK[1]},${INK[2]},0.8)`;
+    rtext(ctx, date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), 1340, 140, 40, 640);
+    rtext(ctx, `at ${PLACE.title}`, 1272, 140, 36, 640);
+  } else {
+    const nameSize = sp.name.length > 4 ? 84 : 108;
+    vtext(ctx, sp.name, 1440, 130, nameSize, 1.1);
+    ctx.fillStyle = `rgba(${INK[0]},${INK[1]},${INK[2]},0.8)`;
+    vtext(ctx, eraDate(date), 1318, 140, 42, 1.2);
+    vtext(ctx, `${PLACE.title}にて`, 1250, 140, 36, 1.2);
+  }
   seal(ctx, 1450, 850, 112, rnd);
 
   return cv;

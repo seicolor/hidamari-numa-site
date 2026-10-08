@@ -1,4 +1,5 @@
 // ひだまり浜の景色と住人
+import { L } from '../i18n.js';
 import * as THREE from 'three';
 import { clamp, TAU, smoothstep, hash1 } from '../util.js';
 import { buildTerrain, buildDepthTexture, SHORE_Z, setTide, HEADS, TIDE, waterDepthAt } from './terrain.js';
@@ -34,22 +35,22 @@ export async function buildWorld({ scene, renderer, atm, Q, step, save }) {
   land.name = 'land';
   scene.add(land);
   let terrain, depthTex, water;
-  await step(0.04, '砂浜をならしています…', () => { terrain = buildTerrain(); land.add(terrain); });
-  await step(0.2, '海をみたしています…', () => {
+  await step(0.04, L('砂浜をならしています…', 'Smoothing the sand…'), () => { terrain = buildTerrain(); land.add(terrain); });
+  await step(0.2, L('海をみたしています…', 'Filling the sea…'), () => {
     depthTex = buildDepthTexture();
     water = new Water(renderer, atm, depthTex, { reflScale: Q.refl, samples: Q.samples, sea: SEA });
     scene.add(water.mesh);
   });
   const camPos = new THREE.Vector3(0, PIER.y + 1.58, PIER.zEnd + 1.15);
-  await step(0.28, '沖の島を浮かべています…', () => { buildIslands(land); });
-  await step(0.34, 'サンゴを育てています…', () => { buildCoral(land); });
-  await step(0.42, '溶岩の岩を並べています…', () => { buildLavaRocks(land); });
+  await step(0.28, L('沖の島を浮かべています…', 'Floating the islands…'), () => { buildIslands(land); });
+  await step(0.34, L('サンゴを育てています…', 'Growing the coral…'), () => { buildCoral(land); });
+  await step(0.42, L('溶岩の岩を並べています…', 'Placing lava rocks…'), () => { buildLavaRocks(land); });
   let palms;
-  await step(0.5, 'ヤシを植えています…', () => {
+  await step(0.5, L('ヤシを植えています…', 'Planting palms…'), () => {
     palms = buildPalms(land, { count: Math.round(44 * Math.min(1, Q.density + 0.2)) });
     buildHala(land, { count: Q.density < 0.5 ? 6 : 10 });
   });
-  await step(0.56, '浜に草を生やしています…', () => {
+  await step(0.56, L('浜に草を生やしています…', 'Growing beach grass…'), () => {
     const d = Math.min(1, Q.density + 0.15);
     buildNaupaka(land, { count: Math.round(210 * d), density: d });
     buildBeachGrass(land, { count: Math.round(3200 * Q.density) });
@@ -61,14 +62,14 @@ export async function buildWorld({ scene, renderer, atm, Q, step, save }) {
     buildBeachBits(land, palms.positions);
   });
   const props = {};
-  await step(0.6, '桟橋を直しています…', () => {
+  await step(0.6, L('桟橋を直しています…', 'Fixing the pier…'), () => {
     props.pier = buildPier(scene);
     props.gear = buildGear(scene, { style: 'hama' });
     props.canoe = buildCanoe(land, -7.2, SHORE_Z + 3.6, 0.12);
     buildSign(land, 4.4, SHORE_Z + 2.6, Math.PI + 0.35, 'ひだまり浜', 'ヤッコ・ハギ・パピオ　釣り場');
   });
   let aquarium = null;
-  await step(0.62, '水槽にサンゴをならべています…', () => { aquarium = new Aquarium({ land, scene, atm, save, renderer }); });
+  await step(0.62, L('水槽にサンゴをならべています…', 'Arranging coral in the aquarium…'), () => { aquarium = new Aquarium({ land, scene, atm, save, renderer }); });
   // ---- 潮: 半日周期（12.42 時間）。日づけから位相を決め、ゲーム内の時間にあわせて進む
   // 時計（atm.hour）に合わせて進める。日づけをまたいだら1日すすめ、時刻を戻したら戻す
   let day = Math.floor(Date.now() / 86400000), lastHour = atm.hour;
@@ -130,7 +131,7 @@ export async function buildWorld({ scene, renderer, atm, Q, step, save }) {
   SEA_STATE.snap = (a) => { syncH(a.hour); applyTide(); applySea(a, -1); };   // 時刻を飛ばしたとき（確認用）に、すぐ合わせる
   const seaWord = () => {
     const l = SEA_STATE.level;
-    return l < 0.62 ? 'おだやか' : l < 0.95 ? 'ふつう' : l < 1.35 ? 'やや高い' : '高い';
+    return l < 0.62 ? L('おだやか', 'calm') : l < 0.95 ? L('ふつう', 'moderate') : l < 1.35 ? L('やや高い', 'choppy') : L('高い', 'rough');
   };
   return {
     water, props, grassGroup: null, camPos, land, aquarium,
@@ -140,8 +141,8 @@ export async function buildWorld({ scene, renderer, atm, Q, step, save }) {
     status() {
       const r = TIDE.rate, l = TIDE.level;
       // スマホの幅でも、ウキ下の目盛りに隠れない長さに
-      const tide = Math.abs(r) < 0.22 ? (l > 0 ? '満潮' : '干潮') : r > 0 ? '満ち潮↗' : '引き潮↘';
-      return `${tide}・波 ${seaWord()}`;
+      const tide = Math.abs(r) < 0.22 ? (l > 0 ? L('満潮', 'High tide') : L('干潮', 'Low tide')) : r > 0 ? L('満ち潮↗', 'Rising↗') : L('引き潮↘', 'Falling↘');
+      return L(`${tide}・波 ${seaWord()}`, `${tide} · waves ${seaWord()}`);
     },
     update(dt, time, atm) {
       syncH(atm.hour);
@@ -163,8 +164,8 @@ export function buildLife({ scene, camera, water, fx, audio, ui, save, getGame }
   const honu = new Honu(scene, water, {
     ripple: (x, z, a) => water.addRipple(x, z, a),
     onFirst: () => {
-      ui.toast('入り江を、ウミガメ（ホヌ）が泳いでいく。そっと見守ろう', 'info', 4600);
-      if (save.achieve('honu')) setTimeout(() => ui.toast('ホヌに出会えた。いいことありそう', 'big', 3000), 2400);
+      ui.toast(L('入り江を、ウミガメ（ホヌ）が泳いでいく。そっと見守ろう', 'A sea turtle (honu) glides across the cove. Watch quietly'), 'info', 4600);
+      if (save.achieve('honu')) setTimeout(() => ui.toast(L('ホヌに出会えた。いいことありそう', 'You met a honu. Something good may happen'), 'big', 3000), 2400);
     },
   });
   return {

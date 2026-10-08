@@ -1,4 +1,5 @@
 // 釣りの進行（投げる → 待つ → アタリ → 合わせる → やり取り → 取り込み → 図鑑）
+import { L, EN } from './i18n.js';
 import * as THREE from 'three';
 import { clamp, lerp, damp, smoothstep, TAU, noise2 } from './util.js';
 import { SPECIES, DEFAULT_BITE, BAITS, weightG, fmtWeight, rollLength, SPECIES_ORDER, TACKLE_MIN, TACKLE_MAX, TACKLE_STEP, likesOf, layerText, isSeasonal, inSeason } from './species.js';
@@ -115,36 +116,37 @@ export class Game {
     if (!C.feed()) return;
     const given = this.keptList.pop();
     this.ui.setKept(this.keptList.length);
-    this.ui.toast(`猫に ${SPECIES[given.id] ? SPECIES[given.id].name : '魚'} をあげた`, 'info', 1800);
+    this.ui.toast(L(`猫に ${SPECIES[given.id] ? SPECIES[given.id].name : '魚'} をあげた`, `You gave the cat a ${SPECIES[given.id] ? SPECIES[given.id].name : 'fish'}`), 'info', 1800);
     const first = this.save.achieve('cat');
-    if (first) setTimeout(() => this.ui.toast('猫となかよくなった', 'big', 2400), 2200);
+    if (first) setTimeout(() => this.ui.toast(L('猫となかよくなった', 'You made friends with the cat'), 'big', 2400), 2200);
     setTimeout(() => this.ui.toast(this.catHint(), 'info', 5200), first ? 4800 : 2600);
   }
   // まだ釣れていない魚のヒント（style: 'cat' は「みたい」、'elder' は「らしいぞ」）
   hintMsg(style = 'cat') {
-    const end = style === 'elder' ? 'らしいぞ' : 'みたい';
+    const end = EN ? (style === 'elder' ? ', so they say' : ', it seems') : style === 'elder' ? 'らしいぞ' : 'みたい';
+    const low = (s) => s.charAt(0).toLowerCase() + s.slice(1);
     const ids = SPECIES_ORDER.filter((id) => !SPECIES[id].junk);
     const caught = this.save.data.catches || {};
     const unseen = ids.filter((id) => !(caught[id] && caught[id].count > 0));
     const pool = unseen.length ? unseen : ids;
     const sp = SPECIES[pool[Math.floor(Math.random() * pool.length)]];
-    const L = likesOf(sp), lt = layerText(sp);
+    const lk = likesOf(sp), lt = layerText(sp);
     const opts = [];
-    if (isSeasonal(sp) && !inSeason(sp)) return `${sp.name}は、${SEASON_NAMES[sp.season]}にだけ姿を見せる${end}`;
-    if (lt) opts.push(`${sp.name}は、${lt}にいる${end}`);
-    const when = [...L.times, ...L.wx].slice(0, 2);
-    if (when.length) opts.push(`${sp.name}は、${when.join('・')}によく食う${end}`);
-    if (L.poor.length) opts.push(`${sp.name}は、${L.poor[0]}がにがて${end}`);
-    return opts.length ? opts[Math.floor(Math.random() * opts.length)] : `${sp.name}を見かけた${style === 'elder' ? 'ぞ' : 'よ'}`;
+    if (isSeasonal(sp) && !inSeason(sp)) return L(`${sp.name}は、${SEASON_NAMES[sp.season]}にだけ姿を見せる${end}`, `The ${sp.name} only shows up in ${low(SEASON_NAMES[sp.season])}${end}`);
+    if (lt) opts.push(L(`${sp.name}は、${lt}にいる${end}`, `Look for the ${sp.name}: ${low(lt)}${end}`));
+    const when = [...lk.times, ...lk.wx].slice(0, 2);
+    if (when.length) opts.push(L(`${sp.name}は、${when.join('・')}によく食う${end}`, `The ${sp.name} bites best at ${when.join(' and ')}${end}`));
+    if (lk.poor.length) opts.push(L(`${sp.name}は、${lk.poor[0]}がにがて${end}`, `The ${sp.name} doesn't care for ${lk.poor[0]}${end}`));
+    return opts.length ? opts[Math.floor(Math.random() * opts.length)] : L(`${sp.name}を見かけた${style === 'elder' ? 'ぞ' : 'よ'}`, `I saw a ${sp.name}`);
   }
-  catHint() { return `猫が目を細めた…「${this.hintMsg('cat')}」`; }
+  catHint() { return L(`猫が目を細めた…「${this.hintMsg('cat')}」`, `The cat narrows its eyes… “${this.hintMsg('cat')}”`); }
 
   // ---------------------------------------------------------------- ボート
   onPier() { return !this.boat || (this.boat.at === 'pier' && !this.boat.trip); }
   openBoatMenu() {
     const B = this.boat;
     if (!B || B.busy) return;
-    if (this.state !== ST.IDLE) { this.ui.toast('ウキをあげてから、ボートに乗ろう', 'info', 2200); return; }
+    if (this.state !== ST.IDLE) { this.ui.toast(L('ウキをあげてから、ボートに乗ろう', 'Reel in before getting in the boat'), 'info', 2200); return; }
     this.ui.openBoat(B.spots, B.at);
   }
   goBoat(id) {
@@ -157,11 +159,11 @@ export class Game {
   talkNeighbor() {
     const N = this.neighbor;
     if (!N || !N.canTalk || (this.state !== ST.IDLE && this.state !== ST.FLOAT)) return;
-    if (N.headPos().distanceTo(this.player.eye) > 30) { this.ui.toast('遠くて、声がとどかない', 'info', 1800); return; }
+    if (N.headPos().distanceTo(this.player.eye) > 30) { this.ui.toast(L('遠くて、声がとどかない', 'Too far away to talk'), 'info', 1800); return; }
     const sv = this.save;
     const caught = sv.data.catches || {};
     const hint = Math.random() < 0.7 ? this.hintMsg('elder') : null;
-    const r = N.talk({ met: !!sv.setting('neighborMet'), hint: hint ? `${hint}。` : null, nushiCaught: !!(caught.nushi && caught.nushi.count > 0), keptN: this.keptList.length });
+    const r = N.talk({ met: !!sv.setting('neighborMet'), hint: hint ? L(`${hint}。`, `${hint}.`) : null, nushiCaught: !!(caught.nushi && caught.nushi.count > 0), keptN: this.keptList.length });
     sv.setting('neighborMet', 1);
     this.ui.say(r.text, 3400 + r.text.length * 110);
     // 彼のほうへ、そっと視線をむける
@@ -173,9 +175,9 @@ export class Game {
     this.player.targetFov = Math.min(this.player.targetFov, 38);
     if (r.luck) {
       this.wishLuck(120);
-      setTimeout(() => { this.audio.wish(); this.ui.toast('おまじないをもらった（しばらく、釣れそうな気がする）', 'info', 3600); }, 2600 + r.text.length * 70);
+      setTimeout(() => { this.audio.wish(); this.ui.toast(L('おまじないをもらった（しばらく、釣れそうな気がする）', 'You got a good-luck charm (feeling lucky for a while)'), 'info', 3600); }, 2600 + r.text.length * 70);
     }
-    if (sv.achieve('neighbor')) setTimeout(() => this.ui.toast('釣り友だちができた', 'big', 2600), 1800);
+    if (sv.achieve('neighbor')) setTimeout(() => this.ui.toast(L('釣り友だちができた', 'You made a fishing friend'), 'big', 2600), 1800);
   }
 
   // ---------------------------------------------------------------- ウキの拡大
@@ -187,7 +189,7 @@ export class Game {
     this.player.mouseLook = false;
     this.ui.setMarkerZoom(true);
     this.audio.uiTick();
-    this.ui.toast('ウキを拡大中（もう一度タップで戻る）', 'info', 2200);
+    this.ui.toast(L('ウキを拡大中（もう一度タップで戻る）', 'Zoomed in on the bobber (tap again to go back)'), 'info', 2200);
   }
 
   endBobberZoom(user) {
@@ -225,7 +227,7 @@ export class Game {
   setTackle(v, byKey) {
     v = clamp(Math.round(v * 10) / 10, TACKLE_MIN, TACKLE_MAX);
     if (!this.canTackle()) {
-      if (byKey && this.time - (this._tkToast || -9) > 2) { this._tkToast = this.time; this.ui.toast('ウキ下は、ウキが浮いているときに変えられます', 'info', 1600); }
+      if (byKey && this.time - (this._tkToast || -9) > 2) { this._tkToast = this.time; this.ui.toast(L('ウキ下は、ウキが浮いているときに変えられます', 'You can change the depth while the bobber is floating'), 'info', 1600); }
       return;
     }
     if (v === this.tackle) return;
@@ -238,8 +240,8 @@ export class Game {
       // 仕掛けを上げ下げするので、水面に小さな波紋
       this.water.addRipple(this.bobPos.x, this.bobPos.z, 0.08);
       const floor = this.lure.floor;
-      if (v > floor - 0.02) this.ui.toast('エサが底についた（ウキが寝る）', 'info', 1400);
-      else this.ui.toast(deeper ? `ウキ下 ${v.toFixed(1)} m　エサをしずめる` : `ウキ下 ${v.toFixed(1)} m　エサを浮かせる`, 'info', 1200);
+      if (v > floor - 0.02) this.ui.toast(L('エサが底についた（ウキが寝る）', 'The bait is on the bottom (the bobber lies flat)'), 'info', 1400);
+      else this.ui.toast(deeper ? L(`ウキ下 ${v.toFixed(1)} m　エサをしずめる`, `Depth ${v.toFixed(1)} m · bait lowered`) : L(`ウキ下 ${v.toFixed(1)} m　エサを浮かせる`, `Depth ${v.toFixed(1)} m · bait raised`), 'info', 1200);
     }
   }
 
@@ -291,19 +293,19 @@ export class Game {
     if (!c.noticed && !c.depthHint && this.waitT > 20 && pr.near > 0 && pr.fit === 0) {
       c.depthHint = true;
       const want = pr.want, cur = -this.lure.depth;
-      const dir = want > cur + 0.2 ? 'もう少し深いタナ' : want < cur - 0.2 ? 'もう少し浅いタナ' : 'ちがうタナ';
-      this.ui.toast(`魚の気配はあるのに食ってこない… ${dir}にいるのかも`, 'info', 4200);
-      if (!this.tackleHinted) { this.tackleHinted = true; this.save.setting('tackleHint', 1); setTimeout(() => this.ui.toast(this.ui.isTouch ? '右の目盛りをタップ／▲▼で「ウキ下」を変えられます' : '右の目盛りをクリック、または [ ] キーで「ウキ下」を変えられます', 'info', 4600), 4400); }
+      const dir = want > cur + 0.2 ? L('もう少し深いタナ', 'a little deeper') : want < cur - 0.2 ? L('もう少し浅いタナ', 'a little shallower') : L('ちがうタナ', 'at another depth');
+      this.ui.toast(L(`魚の気配はあるのに食ってこない… ${dir}にいるのかも`, `Fish are around, but not biting… maybe they are ${dir}`), 'info', 4200);
+      if (!this.tackleHinted) { this.tackleHinted = true; this.save.setting('tackleHint', 1); setTimeout(() => this.ui.toast(this.ui.isTouch ? L('右の目盛りをタップ／▲▼で「ウキ下」を変えられます', 'Tap the scale on the right or ▲▼ to change the depth') : L('右の目盛りをクリック、または [ ] キーで「ウキ下」を変えられます', 'Click the scale on the right, or press [ ], to change the depth'), 'info', 4600), 4400); }
     } else if (!c.noticed && !c.emptyHint && this.waitT > 50 && pr.near === 0) {
       c.emptyHint = true;
-      this.ui.toast('このあたりは魚が少ないみたい。場所をかえてみよう', 'info', 3600);
+      this.ui.toast(L('このあたりは魚が少ないみたい。場所をかえてみよう', 'Not many fish around here. Try another spot'), 'info', 3600);
     }
   }
 
   setBait(id) {
     if (!BAITS[id]) return;
     if (this.state === ST.FLOAT || this.state === ST.BITE || this.state === ST.FIGHT || this.state === ST.CAST || this.state === ST.LAND || this.state === ST.SHOW) {
-      this.ui.toast('エサは釣り糸を巻き上げてから変えよう', 'info', 1800);
+      this.ui.toast(L('エサは釣り糸を巻き上げてから変えよう', 'Reel in before changing bait'), 'info', 1800);
       return;
     }
     this.bait = id;
@@ -311,7 +313,7 @@ export class Game {
     this.save.setting('bait', id);
     this.ui.setBait(id);
     this.audio.uiTick();
-    this.ui.toast(`${BAITS[id].name} をつけた`, 'info', 1200);
+    this.ui.toast(L(`${BAITS[id].name} をつけた`, `Baited with ${BAITS[id].name}`), 'info', 1200);
   }
 
   applyRod() {
@@ -326,14 +328,14 @@ export class Game {
   setRod(type) {
     if (!ROD_TYPES[type] || type === this.rodType) return;
     if (this.state !== ST.IDLE) {
-      this.ui.toast('竿を替えるには、いったん糸を巻き上げよう', 'info', 1800);
+      this.ui.toast(L('竿を替えるには、いったん糸を巻き上げよう', 'Reel in before switching rods'), 'info', 1800);
       return;
     }
     this.rodType = type;
     this.save.setting('rod', type);
     this.applyRod();
     this.audio.uiTick();
-    this.ui.toast(`${this.cfg.name} に持ち替えた`, 'info', 1600);
+    this.ui.toast(L(`${this.cfg.name} に持ち替えた`, `Switched to the ${this.cfg.name}`), 'info', 1600);
     if (type === 'hera' && this.bait !== 'dough' && PLACE.heraTip) this.ui.toast(PLACE.heraTip, 'info', 2600);
   }
 
@@ -431,13 +433,13 @@ export class Game {
       if (Math.hypot(this.bobPos.x - e0.x, this.bobPos.z - e0.z) >= 12) {
         this.zoomHinted = true;
         this.save.setting('zoomHint', 1);
-        this.ui.toast('遠いウキは、ウキのまわりの輪をタップ（Zキー）で拡大できます', 'info', 3600);
+        this.ui.toast(L('遠いウキは、ウキのまわりの輪をタップ（Zキー）で拡大できます', 'Tap the ring around a distant bobber (Z key) to zoom in'), 'info', 3600);
       }
     }
     if (!this.ledHinted && this.state === ST.FLOAT && this.stateT > 2 && this.atm.night > 0.5 && !this.save.setting('ledHint')) {
       this.ledHinted = true;
       this.save.setting('ledHint', 1);
-      this.ui.toast('夜は、ウキの先が光ります（電気ウキ）', 'info', 3600);
+      this.ui.toast(L('夜は、ウキの先が光ります（電気ウキ）', 'At night the bobber tip glows (electric bobber)'), 'info', 3600);
     }
     this.updateRodAndLine(dt);
     this.updateLureDepth(dt);
@@ -469,16 +471,16 @@ export class Game {
   }
 
   hintFor() {
-    if (this.boat && this.boat.busy) return 'ボートをこいでいます…';
-    if (this.ui.isTouch) return 'ボタンを押し続けて、はなして投げる';
-    return '押し続けて、はなして投げる　／　ホイールでズーム';
+    if (this.boat && this.boat.busy) return L('ボートをこいでいます…', 'Rowing…');
+    if (this.ui.isTouch) return L('ボタンを押し続けて、はなして投げる', 'Hold the button, release to cast');
+    return L('押し続けて、はなして投げる　／　ホイールでズーム', 'Hold, then release to cast  /  wheel to zoom');
   }
 
   // ---------------------------------------------------------------- CHARGE
   updateCharge(dt, released, held) {
     this.power = Math.min(1, this.power + dt / this.cfg.cast.charge);
     this.ui.setPower(this.power);
-    this.ui.setHint('はなして投げる！');
+    this.ui.setHint(L('はなして投げる！', 'Release to cast!'));
     // 予想着水点
     const tgt = this.computeLanding(this.power, this.player.yaw);
     this.ring.position.set(tgt.x, 0.02, tgt.z);
@@ -567,7 +569,7 @@ export class Game {
     this.ui.setWater(floor);
     if (!this.save.setting('tackleIntro')) {
       this.save.setting('tackleIntro', 1);
-      setTimeout(() => this.ui.toast(this.ui.isTouch ? `水深 ${floor.toFixed(1)}m ／ ウキ下 ${this.tackle.toFixed(1)}m　右の目盛りで深さを変えられます` : `水深 ${floor.toFixed(1)}m ／ ウキ下 ${this.tackle.toFixed(1)}m　右の目盛り（[ ] キー）で深さを変えられます`, 'info', 5200), 1800);
+      setTimeout(() => this.ui.toast(this.ui.isTouch ? L(`水深 ${floor.toFixed(1)}m ／ ウキ下 ${this.tackle.toFixed(1)}m　右の目盛りで深さを変えられます`, `Water ${floor.toFixed(1)} m / bait depth ${this.tackle.toFixed(1)} m · change it with the scale on the right`) : L(`水深 ${floor.toFixed(1)}m ／ ウキ下 ${this.tackle.toFixed(1)}m　右の目盛り（[ ] キー）で深さを変えられます`, `Water ${floor.toFixed(1)} m / bait depth ${this.tackle.toFixed(1)} m · change it with the scale on the right ([ ] keys)`), 'info', 5200), 1800);
     }
     this.biteFish = null;
     this.waitT = 0;
@@ -579,7 +581,7 @@ export class Game {
   updateFloat(dt, pressed) {
     this.waitT += dt;
     this.updateBobberBob(dt);
-    this.ui.setHint(this.waitT < 3 ? 'ウキをじっと見守ろう…' : 'ウキが沈んだら、すぐクリック！（クリックで巻き上げ）');
+    this.ui.setHint(this.waitT < 3 ? L('ウキをじっと見守ろう…', 'Watch the bobber…') : L('ウキが沈んだら、すぐクリック！（クリックで巻き上げ）', 'Click as soon as the bobber sinks! (click to reel in)'));
     if (pressed) {
       this.startRetrieve();
     }
@@ -665,7 +667,7 @@ export class Game {
     this.vibrate([30, 30, 60]);
     this.water.addRipple(this.bobPos.x, this.bobPos.z, be.ripple || 0.6);
     this.fx.splash(this.bobPos.x, this.bobPos.z, be.splash || 0.18);
-    this.ui.toast('ウキが沈んだ！　いまだ！', 'big', 1300);
+    this.ui.toast(L('ウキが沈んだ！　いまだ！', 'The bobber sank! Now!'), 'big', 1300);
     this.ui.flashBite();
   }
 
@@ -675,14 +677,14 @@ export class Game {
       this.dipTarget = 0;
       this.dipY = -0.1;
       this.setState(ST.FLOAT);
-      this.ui.toast('逃げられた… もう少し早く！', 'warn', 1800);
+      this.ui.toast(L('逃げられた… もう少し早く！', 'It got away… a little quicker!'), 'warn', 1800);
     }
   }
 
   // ---------------------------------------------------------------- BITE
   updateBite(dt, pressed) {
     this.updateBobberBob(dt);
-    this.ui.setHint('いまだ！クリック！');
+    this.ui.setHint(L('いまだ！クリック！', 'Now! Click!'));
     if (!this.biteFish || !this.biteFish.alive) { this.dipTarget = 0; this.setState(ST.FLOAT); return; }
     if (pressed) this.hookSet();
   }
@@ -728,7 +730,7 @@ export class Game {
     this.setState(ST.FIGHT);
     this.dipTarget = -0.18;
     this.ui.setTension(0.3);
-    this.ui.toast(sp.junk ? 'なにか重いぞ…！' : 'かかった！', 'big', 1000);
+    this.ui.toast(sp.junk ? L('なにか重いぞ…！', 'Something heavy…!') : L('かかった！', 'Fish on!'), 'big', 1000);
     this.audio.thrash(this.pan(fish.x, fish.z));
     // 視線は、ヒットのまえの向きを覚えておく（終わったら戻る）
     if (this.player.follows) this.player.home = { yaw: this.player.baseYaw, pitch: this.player.basePitch };
@@ -852,7 +854,7 @@ export class Game {
 
     // ---- ヒント
     const warn = F.tension > 0.82;
-    this.ui.setHint(warn ? 'はなして！糸が切れそう！' : reeling ? this.cfg.fightHint : (F.tension < 0.3 ? this.cfg.reelHint : 'ゲージが赤いときははなす'));
+    this.ui.setHint(warn ? L('はなして！糸が切れそう！', 'Let go! The line is about to snap!') : reeling ? this.cfg.fightHint : (F.tension < 0.3 ? this.cfg.reelHint : L('ゲージが赤いときははなす', 'Let go when the gauge is red')));
 
     // ---- 取り込み
     if (F.dist <= this.cfg.landDist) {
@@ -862,7 +864,7 @@ export class Game {
         // まだ元気: ひと走り
         F.running = true; F.runT = rand(0.8, 1.4); F.runPow = clamp(sp.strength * 0.8 + 0.1);
         F.dist = Math.min(this.cfg.maxDist, F.dist + 1.2);
-        this.ui.toast('まだ元気だ！', 'info', 900);
+        this.ui.toast(L('まだ元気だ！', 'Still full of fight!'), 'info', 900);
       }
     }
   }
@@ -871,7 +873,7 @@ export class Game {
     const F = this.fight;
     this.audio.snap();
     this.player.shake = 0.8;
-    this.ui.toast('糸が切れた！…', 'warn', 2200);
+    this.ui.toast(L('糸が切れた！…', 'The line snapped!…'), 'warn', 2200);
     this.releaseFish(F.f, true);
     this.ui.setTension(null);
     this.fight = null;
@@ -953,13 +955,13 @@ export class Game {
     d.list.forEach((c, i) => {
       const p = d.progress(i);
       if (fin.includes(i)) return;
-      if (p > before[i] && c.goal > 1) msgs.push(`${c.label}　${p} / ${c.goal}`);
+      if (p > before[i] && c.goal > 1) msgs.push(L(`${c.label}　${p} / ${c.goal}`, `${c.label} · ${p} / ${c.goal}`));
     });
     if (msgs.length) setTimeout(() => this.ui.toast(msgs[0], 'info', 2200), 1200);
     if (fin.length) {
       const all = d.list.every((c, i) => d.isDone(i));
       setTimeout(() => {
-        this.ui.toast(all ? '今日のお題 すべて達成！' : `${d.list[fin[0]].label}達成！　印がついた`, 'big', 3400);
+        this.ui.toast(all ? L('今日のお題 すべて達成！', 'All of today\'s tasks done!') : L(`${d.list[fin[0]].label}達成！　印がついた`, `${d.list[fin[0]].label} done! You earned a stamp`), 'big', 3400);
         this.audio.catchJingle(3);
       }, 1500);
     }
@@ -968,17 +970,17 @@ export class Game {
   achievements(info) {
     const sv = this.save;
     this.dailyRecord(info);
-    if (!info.sp.junk && sv.achieve('first')) this.ui.toast('はじめての一匹！', 'big', 2400);
+    if (!info.sp.junk && sv.achieve('first')) this.ui.toast(L('はじめての一匹！', 'Your first fish!'), 'big', 2400);
     const n = sv.speciesCaught();
-    if (n >= 5 && sv.achieve('five')) this.ui.toast('図鑑 5種達成！', 'big', 2400);
+    if (n >= 5 && sv.achieve('five')) this.ui.toast(L('図鑑 5種達成！', '5 species in your field guide!'), 'big', 2400);
     const base = SPECIES_ORDER.filter((id) => !SPECIES[id].junk && !SPECIES[id].legend && !isSeasonal(SPECIES[id]));
     const got = (id) => sv.data.catches[id] && sv.data.catches[id].count > 0;
     if (base.every(got) && sv.achieve('all')) this.ui.toast(PLACE.allToast, 'big', 3500);
     const seasonal = SPECIES_ORDER.filter((id) => isSeasonal(SPECIES[id]));
-    if (seasonal.every(got) && sv.achieve('seasons')) this.ui.toast('四季の魚をすべて釣った！　一年を味わった', 'big', 4000);
-    if (info.sp.id === 'nishiki' && sv.achieve('nishiki')) this.ui.toast('錦鯉に出会えた。いいことありそう', 'big', 3500);
+    if (seasonal.every(got) && sv.achieve('seasons')) this.ui.toast(L('四季の魚をすべて釣った！　一年を味わった', 'You caught every seasonal fish! A full year of fishing'), 'big', 4000);
+    if (info.sp.id === 'nishiki' && sv.achieve('nishiki')) this.ui.toast(L('錦鯉に出会えた。いいことありそう', 'You met an ornamental koi. Something good may happen'), 'big', 3500);
     if (info.sp.legend && sv.achieve('nushi')) this.ui.toast(PLACE.legendToast, 'big', 4200);
-    if (info.sp.junk && sv.achieve('boot')) this.ui.toast(`${info.sp.name}を釣った…！`, 'big', 2400);
+    if (info.sp.junk && sv.achieve('boot')) this.ui.toast(L(`${info.sp.name}を釣った…！`, `You caught… a ${info.sp.name}!`), 'big', 2400);
   }
 
   // ---------------------------------------------------------------- SHOW
@@ -1019,7 +1021,7 @@ export class Game {
       // 長靴: 持ち帰る or 水に戻す
       this.sim.group.remove(g);
       if (choice === 'keep') this.ui.toast(PLACE.junkToast, 'info', 2200);
-      else this.ui.toast('そっと元の場所に…', 'info', 1500);
+      else this.ui.toast(L('そっと元の場所に…', 'Gently put it back…'), 'info', 1500);
       this.audio.keepSound();
     } else if (choice === 'tank' && this.tank) {
       // 水槽へ（入らないときは、びくへ）
@@ -1028,8 +1030,8 @@ export class Game {
       this.sim.remove(f);
       this.ui.setKept(this.keptList.length);
       this.audio.keepSound();
-      if (r.ok) this.ui.toast(`${f.sp.name} ${f.cm.toFixed(1)}cm を水槽に入れた。右下の「水槽を見る」（V）で見られます`, 'info', 3200);
-      else this.ui.toast(`${r.msg}。びくに入れた`, 'info', 2600);
+      if (r.ok) this.ui.toast(L(`${f.sp.name} ${f.cm.toFixed(1)}cm を水槽に入れた。右下の「水槽を見る」（V）で見られます`, `Put the ${f.sp.name} (${f.cm.toFixed(1)} cm) in the tank. See it with “Aquarium” (V) at the bottom right`), 'info', 3200);
+      else this.ui.toast(L(`${r.msg}。びくに入れた`, `${r.msg}. Kept it in your creel`), 'info', 2600);
       this.save.save();
     } else if (choice === 'keep') {
       this.save.data.kept++;
@@ -1037,11 +1039,11 @@ export class Game {
       this.sim.remove(f);
       this.ui.setKept(this.keptList.length);
       this.audio.keepSound();
-      this.ui.toast(`${f.sp.name} ${f.cm.toFixed(1)}cm をびくに入れた`, 'info', 2000);
+      this.ui.toast(L(`${f.sp.name} ${f.cm.toFixed(1)}cm をびくに入れた`, `Kept the ${f.sp.name} (${f.cm.toFixed(1)} cm) in your creel`), 'info', 2000);
       this.save.save();
     } else {
       this.releaseFish(f, false);
-      this.ui.toast(`${f.sp.name}を逃がした。また会おうね`, 'info', 1800);
+      this.ui.toast(L(`${f.sp.name}を逃がした。また会おうね`, `Released the ${f.sp.name}. See you again`), 'info', 1800);
     }
     this.catchObj = null;
     this.fight = null;
@@ -1099,7 +1101,7 @@ export class Game {
     if (d < 3.0 || pondSigned(p.x, p.z) > -0.8) {
       this.endToIdle();
     }
-    this.ui.setHint('巻き上げ中…');
+    this.ui.setHint(L('巻き上げ中…', 'Reeling in…'));
   }
 
   endToIdle() {

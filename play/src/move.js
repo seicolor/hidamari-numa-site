@@ -2,6 +2,7 @@
 // Artifact と Pages は記録の置き場所（localStorage）が別なので、記録をリンクの # のうしろに入れて、新しいタブで Pages を開く。
 // Pages のほうでは、開いたときに # を読んで「この記録を読み込みますか」とたずね、読み込んだら # を消して開き直す。
 // （# のうしろはサーバーに送られない。リンクを見せたり、だれかに送ったりしないこと）
+import { L } from './i18n.js';
 import { exportText, parseImport, applyImport } from './backup.js';
 
 export const PLAY_URL = 'https://seicolor.github.io/hidamari-numa-site/play/';
@@ -37,7 +38,7 @@ async function receive() {
   if (!m) return;
   const clean = () => { try { const u = new URL(location.href); u.hash = ''; history.replaceState(history.state, '', u.toString()); } catch (e) { /* ignore */ } };
   let r;
-  try { r = parseImport(await readMove(m[1])); } catch (e) { r = { ok: false, msg: '記録を読めませんでした（リンクが途中で切れているかもしれません）' }; }
+  try { r = parseImport(await readMove(m[1])); } catch (e) { r = { ok: false, msg: L('記録を読めませんでした（リンクが途中で切れているかもしれません）', 'Could not read the records (the link may have been cut off)') }; }
   clean();
   const el = document.createElement('div');
   el.id = 'wmove';
@@ -46,17 +47,17 @@ async function receive() {
   el.setAttribute('aria-labelledby', 'wmvT');
   el.innerHTML = r.ok ? `
     <div class="wm-in">
-      <div class="wc-k">引っ越し</div>
-      <h2 id="wmvT">記録を、こちらへ移しますか</h2>
+      <div class="wc-k">${L('引っ越し', 'Moving in')}</div>
+      <h2 id="wmvT">${L('記録を、こちらへ移しますか', 'Bring your records here?')}</h2>
       <ul class="wm-l">${r.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>
-      <p class="wc-note">このブラウザにある、ここでの記録は、持ってきた記録に入れかわります。claude.ai のほうの記録は、そのまま残ります。</p>
-      <div class="wm-a"><button type="button" class="btn primary" data-a="yes"><span class="seal">釣</span>この記録で遊ぶ</button><button type="button" class="btn small" data-a="no">移さない</button></div>
+      <p class="wc-note">${L('このブラウザにある、ここでの記録は、持ってきた記録に入れかわります。claude.ai のほうの記録は、そのまま残ります。', 'Any records already saved here in this browser will be replaced. Your records on claude.ai stay as they are.')}</p>
+      <div class="wm-a"><button type="button" class="btn primary" data-a="yes"><span class="seal">釣</span>${L('この記録で遊ぶ', 'Play with these records')}</button><button type="button" class="btn small" data-a="no">${L('移さない', 'Not now')}</button></div>
     </div>` : `
     <div class="wm-in">
-      <div class="wc-k">引っ越し</div>
-      <h2 id="wmvT">記録を移せませんでした</h2>
-      <p class="wc-note">${esc(r.msg)}。claude.ai のゲームの設定にある「記録の書き出し」から、ファイルで移すこともできます。</p>
-      <div class="wm-a"><button type="button" class="btn small" data-a="no">とじる</button></div>
+      <div class="wc-k">${L('引っ越し', 'Moving in')}</div>
+      <h2 id="wmvT">${L('記録を移せませんでした', 'Could not move your records')}</h2>
+      <p class="wc-note">${esc(r.msg)}${L('。claude.ai のゲームの設定にある「記録の書き出し」から、ファイルで移すこともできます。', '. You can also move them as a file with “Export / import records” in the game settings on claude.ai.')}</p>
+      <div class="wm-a"><button type="button" class="btn small" data-a="no">${L('とじる', 'Close')}</button></div>
     </div>`;
   document.body.append(el);
   requestAnimationFrame(() => el.classList.add('in'));
@@ -67,7 +68,7 @@ async function receive() {
     if (!b) return;
     if (b.dataset.a === 'yes' && r.ok) {
       if (applyImport(r.saves)) { location.reload(); return; }
-      el.querySelector('.wc-note').textContent = '記録を書きこめませんでした（ブラウザの保存領域が使えないようです）';
+      el.querySelector('.wc-note').textContent = L('記録を書きこめませんでした（ブラウザの保存領域が使えないようです）', 'Could not save the records (browser storage seems unavailable)');
       return;
     }
     el.remove();

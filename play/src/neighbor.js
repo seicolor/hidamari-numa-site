@@ -1,5 +1,6 @@
 // 隣の釣り人（おじいさん）: ときどき手前の岸（左うしろ）にやってきて、すわって釣りをする。
 // 話しかけると、ヒントや昔話をしてくれる。
+import { L, EN } from './i18n.js';
 import * as THREE from 'three';
 import { clamp, lerp, TAU, hexToLinear, damp } from './util.js';
 import { terrainHeight, pondSigned } from './terrain.js';
@@ -134,7 +135,7 @@ function buildPerson() {
 }
 
 // ---------------------------------------------------------------------------
-const TIPS = [
+const TIPS_JA = [
   'ウキ下はな、魚によって好みがあるんじゃ。合うておらんと、気づいてもらえんぞ。',
   'ウキをよう見とると、だれが来たか分かってくる。ツン、ツンと来るのは、たいていフナじゃな。',
   'ぼーっとするのも、釣りのうちじゃよ。',
@@ -145,14 +146,36 @@ const TIPS = [
   '大物は、焦って巻いたらいかん。ゲージが赤いときは、いったん休ませるんじゃ。',
   '桟橋の麦わら帽子な、あれはわしのじゃ。風で飛ばされてのう。',
 ];
-const SEASON_TIPS = {
+const SEASON_TIPS_JA = {
   spring: ['桜の頃はな、ヒブナという緋色のフナが出るんじゃ。', '春は魚も浮かれとる。タナゴもよう食うぞ。'],
   summer: ['夏の夜は、遠くで花火が上がることもある。ウナギは底ぎわをねらうのがコツじゃ。', '夏はザリガニとナマズじゃな。雷が鳴ったあとは、ナマズが動きだすぞ。'],
   autumn: ['秋はヘラブナの荒食いよ。グルテンを丸めて、ふわっと落としてやるんじゃ。', '紅葉を見ながらの釣りは、格別じゃのう。'],
   winter: ['雪の日は、ワカサギじゃ。深めに、グルテンでの。', '冬は魚も眠たそうでの。のんびり待つのが、ええんじゃ。'],
 };
-const NUSHI = 'この沼にはな、ぬしがおるそうじゃ。雨の夜に、ミミズを深ーく沈めてみい。';
-const MUTTERS = ['ふぅ…ええ天気じゃ。', 'ほほう、今日は静かじゃのう。', 'ん？ 気のせいか…。', 'そろそろ、お茶にするかのう。', 'ええ風じゃ。'];
+const NUSHI_JA = 'この沼にはな、ぬしがおるそうじゃ。雨の夜に、ミミズを深ーく沈めてみい。';
+const MUTTERS_JA = ['ふぅ…ええ天気じゃ。', 'ほほう、今日は静かじゃのう。', 'ん？ 気のせいか…。', 'そろそろ、お茶にするかのう。', 'ええ風じゃ。'];
+
+// 英語のせりふ（のんびりした、おじいさんの口ぶりで）
+const TIPS_EN = [
+  'Every fish has its favourite depth, you know. Get it wrong and they won\'t even notice you.',
+  'Watch the bobber long enough and you\'ll know who\'s visiting. A little tap, tap — that\'s usually a crucian carp.',
+  'Staring into space is part of fishing, too.',
+  'Fish are in a good mood at dawn and dusk.',
+  'On rainy days the fish let their guard down. You might meet someone you don\'t usually see.',
+  'At night the electric bobber glows. Handy little thing.',
+  'When the bobber slides under, strike right away. Dawdle and they\'ll spit it out.',
+  'Don\'t rush the big ones. When the gauge turns red, let them rest a moment.',
+  'That straw hat on the pier? It\'s mine. The wind took it.',
+];
+const SEASON_TIPS_EN = {
+  spring: ['Around cherry blossom time, a red crucian carp called hibuna shows up.', 'Fish get giddy in spring. The bitterlings bite well.'],
+  summer: ['On summer nights you may see fireworks far off. For eels, fish near the bottom.', 'Summer means crayfish and catfish. After thunder, the catfish start to move.'],
+  autumn: ['Autumn is when the herabuna feed hard. Roll some dough bait and let it drift down softly.', 'Fishing among the autumn leaves — nothing better.'],
+  winter: ['Snowy days are for smelt. Fish deep, with dough bait.', 'The fish are sleepy in winter. Best to wait patiently.'],
+};
+const NUSHI_EN = 'They say this pond has a lord. Try sinking a worm deep on a rainy night.';
+const MUTTERS_EN = ['Ahh… lovely weather.', 'Quiet today, isn\'t it.', 'Hm? Must be my imagination…', 'Time for some tea, I think.', 'Nice breeze.'];
+const TIPS = EN ? TIPS_EN : TIPS_JA, SEASON_TIPS = EN ? SEASON_TIPS_EN : SEASON_TIPS_JA, NUSHI = EN ? NUSHI_EN : NUSHI_JA, MUTTERS = EN ? MUTTERS_EN : MUTTERS_JA;
 
 export class Neighbor {
   constructor(scene, hooks = {}) {
@@ -203,7 +226,7 @@ export class Neighbor {
     let luck = false;
     const first = !ctx.met;
     if (first) {
-      text = 'おお、見かけん顔じゃのう。ここはええ沼じゃよ。ま、ゆっくりやんなされ。';
+      text = L('おお、見かけん顔じゃのう。ここはええ沼じゃよ。ま、ゆっくりやんなされ。', 'Well now, a new face. This is a fine pond. Take your time.');
       luck = true;
     } else {
       const pool = [];
@@ -211,14 +234,14 @@ export class Neighbor {
       (SEASON_TIPS[SEASON_ID] || []).forEach((t) => pool.push({ w: 1.6, t }));
       if (ctx.hint) pool.push({ w: 4, t: `${ctx.hint}` });
       if (!ctx.nushiCaught) pool.push({ w: 1.2, t: NUSHI });
-      if (ctx.keptN > 0) pool.push({ w: 1.5, t: 'ほう、もう釣れとるのか。腕がええのう。' });
+      if (ctx.keptN > 0) pool.push({ w: 1.5, t: L('ほう、もう釣れとるのか。腕がええのう。', 'Oh, caught one already? You\'ve got a knack for this.') });
       let tot = 0; for (const p of pool) tot += p.w;
       let r = Math.random() * tot, pick = pool[0];
       for (const p of pool) { r -= p.w; if (r <= 0) { pick = p; break; } }
       text = pick.t;
       if (!this.gave && Math.random() < 0.5) luck = true;
     }
-    if (luck) { this.gave = true; text += ' そうじゃ、おまじないをしてやろう。ほれ。'; }
+    if (luck) { this.gave = true; text += L(' そうじゃ、おまじないをしてやろう。ほれ。', ' Here, let me give you a little good-luck charm. There.'); }
     this.hooks.onTalked && this.hooks.onTalked({ first });
     return { text, luck, first };
   }

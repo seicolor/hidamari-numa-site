@@ -1,4 +1,5 @@
 // ひだまり沼の魚種データ（日本語）。共通の計算は ../species.js
+import { EN } from '../i18n.js';
 export const BAITS = {
   worm: { id: 'worm', name: 'ミミズ', desc: '底の生きものが好む定番' },
   dough: { id: 'dough', name: '練りエサ', desc: 'フナ・コイの定番' },
@@ -194,3 +195,57 @@ export const QUEST = {
   many: ['funa', 'tanago'], manyN: { funa: 6, tanago: 5 }, manyDefault: 5, manyAvoid: { tanago: 'funa' },
   titles: [[30, '沼のぬし'], [14, '沼の達人'], [7, '沼の常連'], [3, '沼のなじみ'], [1, '見習い釣り人']],
 };
+
+// ---------------------------------------------------------------------------
+// 英語（ruby の欄には日本語の名前を、ローマ字で）
+const EN_TEXT = {
+  bait: {
+    worm: ['Worm', 'A classic for bottom feeders'],
+    dough: ['Dough', 'A favourite of crucian and common carp'],
+    gluten: ['Gluten', 'For fish with small mouths'],
+  },
+  fish: {
+    funa: ['Crucian Carp', 'Funa', '“Fishing begins and ends with the funa.” An easygoing regular of the pond.'],
+    koi: ['Common Carp', 'Koi', 'Almost a lord of the pond. It feels along the bottom with its whiskers and pulls hard.'],
+    tanago: ['Bitterling', 'Tanago', 'A tiny jewel whose breeding colours glint in the evening sun. Strike gently.'],
+    imori: ['Fire-bellied Newt', 'Imori', 'The red belly is a warning of poison. Its name means “guardian of the well”. Let it go gently.'],
+    dojo: ['Pond Loach', 'Dojō', 'A master of the mud. It feels for food with its whiskers and wriggles away.'],
+    zarigani: ['Crayfish', 'Zarigani', 'A partner in childhood adventures. Mind the claws!'],
+    namazu: ['Catfish', 'Namazu', 'Said to stir before a thunderstorm. Slippery and slow.'],
+    nishiki: ['Nishikigoi', 'Ornamental koi', 'A red-and-white brocade. Meeting one surely brings good luck — a treasure of the pond.'],
+    hibuna: ['Red Crucian Carp', 'Hibuna', 'A scarlet crucian carp seen only in spring. Like a little lantern lit underwater.', 'In spring, when the water warms, people say they have seen a scarlet carp…'],
+    unagi: ['Japanese Eel', 'Unagi', 'A long, slippery shadow that comes out of the mud on summer nights. A strong pull.', 'On summer nights, something long was moving near the bottom… or so they say.'],
+    herabuna: ['Japanese White Crucian Carp', 'Herabuna', 'The fish the hera pole was made for. Usually wary, but in autumn it feeds hard and gently sucks in the bait.', 'In autumn, a big, flat carp was seen sucking in the bait… or so they say.'],
+    wakasagi: ['Pond Smelt', 'Wakasagi', 'A small silver fish that comes to the pond only in winter, gathering in little schools in the cold water.', 'In the snowy season, a small silver school was seen deep down… or so they say.'],
+    nushi: ['Lord of the Pond', 'Numa no Nushi', 'A huge, moss-covered catfish said to have lived on the bottom for decades. It rises from the depths only on rainy nights.', 'On a rainy night, sink a worm deep and a huge shadow draws near… or so the rumour goes.'],
+    boot: ['Rubber Boot', 'Nagagutsu', 'Someone lost this. There might have been a little frog inside…'],
+  },
+  bite: {
+    funa: 'Small taps — tsun, tsun — then the bobber slides under',
+    koi: 'The bobber drifts slowly sideways, then is pulled down deep',
+    tanago: 'Tiny trembles, then the bobber lifts up (a lift bite)',
+    imori: 'The bobber sways gently and sinks slowly',
+    dojo: 'It shivers, then tugs the bobber toward the bottom',
+    zarigani: 'The bobber is dragged sideways and slowly sinks',
+    namazu: 'One heavy knock, then bobber and all are pulled under',
+    nishiki: 'The bobber floats up softly, then is yanked under',
+    hibuna: 'Like a crucian carp: small taps, then a smooth dip',
+    unagi: 'The bobber is drawn slowly, then pulled down hard',
+    herabuna: 'The bobber rises and dips. When it slips under, strike',
+    wakasagi: 'Tiny ticks, and the bobber shifts softly',
+    nushi: 'The bobber is slowly, slowly dragged down to the bottom…',
+  },
+  quest: {
+    shallow: 'Hint: bitterling and crucian carp stay in the shallows',
+    deep: 'Hint: carp and catfish stay deep. Check the water depth too',
+    rare: ' / try at night or on rainy days',
+    titles: ['Lord of the Pond', 'Pond Master', 'Pond Regular', 'Familiar Face', 'Apprentice Angler'],
+  },
+};
+if (EN) {
+  for (const [id, [n, d]] of Object.entries(EN_TEXT.bait)) Object.assign(BAITS[id], { name: n, desc: d });
+  for (const [id, [n, r, d, rumor]] of Object.entries(EN_TEXT.fish)) Object.assign(SPECIES[id], { name: n, ruby: r, desc: d }, rumor ? { rumor } : {});
+  for (const [id, t] of Object.entries(EN_TEXT.bite)) SPECIES[id].biteText = t;
+  QUEST.shallow.hint = EN_TEXT.quest.shallow; QUEST.deep.hint = EN_TEXT.quest.deep; QUEST.rare.hint = EN_TEXT.quest.rare;
+  QUEST.titles.forEach((t, i) => { t[1] = EN_TEXT.quest.titles[i]; });
+}
