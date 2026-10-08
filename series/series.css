@@ -1,0 +1,48 @@
+.shero { position: relative; min-height: 100svh; display: grid; align-items: end; overflow: hidden; }
+.globe-box { position: absolute; inset: 0; }
+#globe { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: grab; }
+.gpins { position: absolute; inset: 0; pointer-events: none; }
+.gpin { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 8px; pointer-events: auto; color: var(--cream); text-align: left; white-space: nowrap; }
+.gpin[hidden] { display: none; }
+.gpin i { width: 18px; height: 18px; display: grid; place-items: center; position: relative; flex: none; }
+.gpin i::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #ffc66e; box-shadow: 0 0 0 3px rgba(255, 198, 110, .25), 0 0 14px 2px rgba(255, 198, 110, .55); }
+.gpin i::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid #ffc66e; animation: gring 2.4s ease-out infinite; }
+@keyframes gring { from { transform: scale(.6); opacity: .9; } to { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .gpin i::after { animation: none; opacity: 0; } }
+.gpin span { display: grid; line-height: 1.3; text-shadow: 0 1px 8px rgba(0, 0, 0, .7); }
+.gpin b { font-size: 16px; font-weight: 700; letter-spacing: .16em; }
+.gpin small { font-size: 11.5px; letter-spacing: .08em; color: var(--cream2); }
+.gpin em { font-style: normal; font-variant-numeric: tabular-nums; }
+.gpin:hover b { text-decoration: underline; text-underline-offset: 4px; }
+.shero-tx { position: relative; z-index: 2; padding-block: 0 clamp(36px, 7vh, 80px); pointer-events: none; text-shadow: 0 2px 18px rgba(0, 0, 0, .65); }
+.shero-tx > * { pointer-events: auto; max-width: 30em; }
+.shero h1 { font-size: clamp(34px, 5.4vw, 76px); font-weight: 500; letter-spacing: .14em; line-height: 1.4; margin-top: 10px; }
+.shero-note { margin-top: 12px; font-size: 12.5px; letter-spacing: .1em; color: var(--cream2); }
+
+.places { padding: clamp(80px, 11vw, 150px) 0; }
+.pcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: clamp(28px, 4vw, 56px); margin-top: clamp(32px, 4vw, 56px); }
+.pcard { display: grid; gap: 18px; align-content: start; }
+.pcard-img { display: block; overflow: hidden; border-radius: 3px; aspect-ratio: 16 / 9; background: var(--paper2); }
+.pcard-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+.pcard:hover .pcard-img img { transform: scale(1.03); }
+.pcard-k { display: flex; align-items: center; gap: 10px; font-size: 13px; letter-spacing: .1em; color: var(--ink2); }
+.seal { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1.5px solid var(--sun); color: var(--sun); border-radius: 5px; font-weight: 700; font-size: 15px; transform: rotate(-5deg); }
+.pcard h3 { font-size: clamp(26px, 2.8vw, 38px); font-weight: 500; letter-spacing: .16em; margin-top: 4px; }
+.pcard-tx > p:not(.pcard-k):not(.pcard-t) { margin-top: 8px; color: var(--ink2); }
+.pcard-t { margin-top: 10px; font-size: 13.5px; letter-spacing: .1em; color: var(--ink2); }
+.pcard-t b { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.pcard-more { display: inline-block; margin-top: 14px; font-size: 15px; letter-spacing: .14em; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
+.pcard-more:hover { color: var(--accent-t); border-color: var(--accent-t); }
+
+.trip { padding: clamp(80px, 11vw, 150px) 0; }
+.trip-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+@media (max-width: 860px) { .trip-in { grid-template-columns: 1fr; } }
+.trip-l { display: grid; gap: 12px; margin-top: 26px; font-size: 15px; color: var(--cream2); }
+.trip-l b { display: block; color: var(--cream); font-weight: 500; letter-spacing: .14em; }
+.trip-fig img { border-radius: 3px; box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8); }
+
+.splay { padding: clamp(80px, 11vw, 140px) 0; background: var(--paper2); text-align: center; }
+.splay-in { display: grid; justify-items: center; }
+.splay .lede { margin-inline: auto; }
+.splay-a { margin-top: 30px; }
+.splay-s { margin-top: 16px; font-size: 13px; letter-spacing: .1em; color: var(--ink2); }

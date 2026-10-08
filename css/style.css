@@ -557,3 +557,16 @@ body.is-loading .progress { opacity: 0; }
 .catch-new { margin-bottom: 8px; }
 
 .cursor.water.busy span { width: 36px; height: 36px; margin: -18px 0 0 -18px; background: transparent; border-color: rgba(246, 240, 226, .75); }
+
+/* ---------- ひだまりシリーズ（浜への案内） ---------- */
+.play-note { margin-top: 10px; font-size: clamp(13px, 1.1vw, 15px); letter-spacing: .1em; color: var(--cream2); text-shadow: 0 1px 14px rgba(0, 0, 0, .55); }
+.series-band { margin-top: clamp(48px, 7vw, 96px); max-width: 640px; padding: clamp(20px, 2.6vw, 30px) clamp(20px, 2.8vw, 34px); border: 1px solid rgba(246, 240, 226, .32); border-radius: 4px; background: rgba(8, 22, 26, .38); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: var(--cream); text-shadow: 0 1px 12px rgba(0, 0, 0, .45); }
+.series-band-k { font-size: 12.5px; letter-spacing: .2em; color: var(--cream2); }
+.series-band h3 { font-size: clamp(20px, 2.2vw, 28px); font-weight: 500; letter-spacing: .14em; margin: 6px 0 8px; line-height: 1.5; }
+.series-band p:not(.series-band-k) { font-size: 14.5px; line-height: 1.95; }
+.series-band-a { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: center; margin-top: 16px; }
+.series-band-link { font-size: 14px; letter-spacing: .14em; border-bottom: 1px solid rgba(246, 240, 226, .45); padding-bottom: 2px; }
+.series-band-link:hover { border-color: var(--cream); }
+.foot-series { font-size: 13.5px; letter-spacing: .12em; opacity: .85; margin-bottom: 6px; }
+.foot-series a { border-bottom: 1px solid rgba(246, 240, 226, .35); }
+.foot-series a:hover { border-color: var(--cream); }
