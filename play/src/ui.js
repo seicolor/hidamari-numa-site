@@ -7,6 +7,7 @@ import { PLACE } from './place.js';
 import { saveCanvas, saveFile } from './download.js';
 import { exportText, exportName, parseImport, applyImport } from './backup.js';
 import { IN_ARTIFACT, PLAY_URL, moveLink } from './move.js';
+import { INAPP, caughtTotal, chromeUrl, askPersist, shouldRemind, copyRecordLink, markKept } from './keep.js';
 import { L, EN, LANG, setLang } from './i18n.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -85,6 +86,23 @@ function sizeNote(sp, cm) {
   return p > 0.88 ? L(`大物！ この${PLACE.water}でも最大級`, `A big one! Among the largest in this ${PLACE.water}`) : p > 0.65 ? L('なかなかの型', 'A good size') : p > 0.3 ? L('ふつうのサイズ', 'An average size') : L('まだ若い、小さめの一匹', 'A young, small one');
 }
 
+// 記録を守る案内（アプリ内ブラウザ／iPhone で、しばらく記録を残していないとき）
+function keepBanner() {
+  const has = caughtTotal() > 0;
+  const copy = has ? `<button type="button" class="kbtn" data-k="copy">${L('記録ごとリンクをコピー', 'Copy a link with my records')}</button>` : '';
+  if (INAPP) {
+    const app = INAPP.app;
+    const how = INAPP.android
+      ? `<a class="kbtn" id="kChrome" href="#">${L('Chrome で開く', 'Open in Chrome')}</a>`
+      : `<span class="khow">${L('画面の「…」や共有ボタンから「Safari で開く」（ブラウザで開く）を選んでください。', 'Tap “…” or the share button and choose “Open in Safari” (open in browser).')}</span>`;
+    return `<div class="tmove tkeep" id="tkeep"><b>${L(`${app ? `${app} の` : ''}アプリの中で開いています`, `You are in ${app ? `the ${app}` : 'an'} in-app browser`)}</b>${L('アプリの中のブラウザでは、記録（図鑑・釣果）が残らないことがあります。いつものブラウザで開くのがおすすめです。', 'In-app browsers may not keep your records (field guide, catches). Opening in your usual browser is recommended.')}<div class="krow">${how}${copy}</div>${has ? `<small class="knote">${L('コピーしたリンクを、いつものブラウザに貼りつけて開くと、ここでの続きから遊べます。', 'Paste the copied link into your usual browser to continue from here.')}</small>` : ''}<div class="kbox"></div></div>`;
+  }
+  if (shouldRemind()) {
+    return `<div class="tmove tkeep" id="tkeep"><b>${L('記録の控えを残しておきませんか', 'Keep a backup of your records?')}</b>${L('iPhone のブラウザは、しばらく開かないサイトの記録を消すことがあります。記録ごとリンクをコピーして、メモなどに貼っておくと、そのリンクから続きを読み込めます。', 'iPhone browsers may delete data for sites you haven’t opened in a while. Copy a link with your records and paste it into your notes; opening it later restores your progress.')}<div class="krow">${copy}<button type="button" class="kbtn ghost" data-k="later">${L('あとで', 'Later')}</button></div><div class="kbox"></div></div>`;
+  }
+  return '';
+}
+
 export class UI {
   constructor(root, camera, save) {
     this.root = root;
@@ -127,6 +145,7 @@ export class UI {
             <div><div id="loadbar"><i></i></div><div id="loadtxt"></div></div>
             <button class="tmap" id="tmapbtn" hidden title="${L('ほかの釣り場へ出かける', 'Travel to another fishing spot')}"><span class="globe" aria-hidden="true"></span>${L('旅の地図　ほかの釣り場へ', 'Travel map · other spots')}</button>
             ${IN_ARTIFACT ? `<div class="tmove"><b>${L('ひだまりは、引っ越しました。', 'Hidamari has moved.')}</b>${L('これからは、ブラウザで直接ひらける新しい場所で遊べます。この画面の記録（図鑑・釣果・水槽）も持っていけます。', 'You can now play at a new address that opens directly in your browser, and bring your records (field guide, catches, aquarium) with you.')}<a id="tmovea" href="${PLAY_URL}" target="_blank" rel="noopener">${L('記録を持って、引っ越す →', 'Move with my records →')}</a></div>` : ''}
+            ${keepBanner()}
             <div class="tips">
               ${EN ? `<b>Cast</b><span>Left click (Space): <kbd>hold</kbd>, then <kbd>release</kbd></span>
               <b>Bite</b><span>When the bobber sinks, click right away to strike</span>
@@ -203,6 +222,7 @@ export class UI {
       const fill = () => moveLink(PLACE.id).then((u) => { a.href = u; }).catch(() => {});
       fill(); setInterval(fill, 15000);
     }
+    this._wireKeep();
     $('#btnSettings', this.hud).addEventListener('click', () => this.toggleSettings());
     $('#btnSound', this.hud).addEventListener('click', () => this.handlers.onMute && this.handlers.onMute());
     this.tankBtn = $('#tankBtn', this.hud);
@@ -573,6 +593,25 @@ export class UI {
   }
 
   // ---------------------------------------------------------------- 釣果カード
+  _wireKeep() {
+    if (caughtTotal() > 0) askPersist();
+    $('#startbtn', this.title).addEventListener('click', () => { askPersist(); }, { once: true });
+    const box = $('#tkeep', this.title);
+    if (!box) return;
+    const out = box.querySelector('.kbox');
+    const ch = box.querySelector('#kChrome');
+    if (ch) {
+      const fill = () => chromeUrl(PLACE.id).then((u) => { ch.href = u; }).catch(() => {});
+      fill(); setInterval(fill, 15000);
+    }
+    box.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-k]');
+      if (!b) return;
+      if (b.dataset.k === 'later') { markKept(); box.remove(); return; }
+      copyRecordLink(PLACE.id, out).then((ok) => { b.textContent = ok ? L('コピーしました', 'Copied') : L('下のリンクをコピーしてください', 'Copy the link below'); }).catch(() => {});
+    });
+  }
+
   showCatch(info, junk) {
     this.hideCatch();
     const sp = info.sp;
@@ -893,6 +932,7 @@ export class UI {
           ${navigator.vibrate ? `<div class="row"><div><div class="t">${L('振動', 'Vibration')}</div><div class="d">${L('アタリや合わせのとき、端末がふるえます（対応する端末だけ）', 'Your device vibrates on bites and strikes (supported devices only)')}</div></div><div class="seg" id="sVib"><button data-v="0">${L('なし', 'Off')}</button><button data-v="1">${L('あり', 'On')}</button></div></div>` : ''}
           <div class="row"><div><div class="t">${L('FPS表示', 'Show FPS')}</div></div><div class="seg" id="sFps"><button data-f="0">${L('なし', 'Off')}</button><button data-f="1">${L('あり', 'On')}</button></div></div>
           ${IN_ARTIFACT ? `<div class="row"><div><div class="t">${L('新しい場所へ引っ越す', 'Move to the new address')}</div><div class="d">${L('ひだまりは、ブラウザで直接ひらける場所へ引っ越しました。押すと、この記録を持って新しいタブで開きます（claude.ai のほうの記録も、そのまま残ります）', 'Hidamari has moved to an address that opens directly in your browser. This opens it in a new tab with your records (your records here on claude.ai stay as they are)')}</div></div><a class="btn small" id="sMove" href="${PLAY_URL}" target="_blank" rel="noopener">${L('記録を持って引っ越す', 'Move with my records')}</a></div>` : ''}
+          ${IN_ARTIFACT ? '' : `<div class="row"><div><div class="t">${L('記録ごとリンク', 'Link with your records')}</div><div class="d">${L('記録を入れたリンクをコピーします。ほかのブラウザで開くと、続きから遊べます（メモに貼っておけば、記録の控えにもなります）。ほかの人には送らないでください', 'Copies a link that carries your records. Open it in another browser to continue there (paste it into your notes to keep a backup). Please don’t send it to other people')}</div><div class="kbox" id="sKeepBox"></div></div><button class="btn small" id="sKeep">${L('コピーする', 'Copy')}</button></div>`}
           <div class="row"><div><div class="t">${L('記録の書き出し・読み込み', 'Export / import records')}</div><div class="d">${L('図鑑・釣果・お題・水槽の魚・設定を（浜と沼の両方）ファイルにまとめて保存し、ほかの端末やブラウザで読み込めます', 'Save your field guide, catches, tasks, aquarium and settings (for both spots) to a file, and load it on another device or browser')}</div></div>
             <div class="bk-b"><button class="btn small" id="sExport">${L('書き出す', 'Export')}</button><button class="btn small" id="sImport">${L('読み込む', 'Import')}</button><input type="file" id="sFile" accept=".json,application/json" hidden></div></div>
           <div class="bk" id="sBk" hidden>
@@ -909,6 +949,7 @@ export class UI {
       </div>`);
     const mark = (sel, attr, val) => el.querySelectorAll(`${sel} button`).forEach((b) => b.classList.toggle('on', String(b.dataset[attr]) === String(val)));
     { const mv = el.querySelector('#sMove'); if (mv) moveLink(PLACE.id).then((u) => { mv.href = u; }).catch(() => {}); }
+    { const kb = el.querySelector('#sKeep'); if (kb) kb.addEventListener('click', () => copyRecordLink(PLACE.id, el.querySelector('#sKeepBox')).then((ok) => { kb.textContent = ok ? L('コピーしました', 'Copied') : L('上のリンクをコピー', 'Copy the link above'); }).catch(() => {})); }
     mark('#sSpeed', 's', cur('timeScale', 0));
     mark('#sWx', 'w', cur('weather', 'auto'));
     mark('#sQ', 'q', q);
@@ -945,6 +986,7 @@ export class UI {
       const show = (text, ask = false) => { box.hidden = false; msg.textContent = text; yes.hidden = !ask; };
       el.querySelector('#sExport').addEventListener('click', async () => {
         const r = await saveFile(exportName(), exportText());
+        if (r === 'saved') markKept();
         if (r === 'saved') show(L('記録を書き出しました。ほかの端末では、設定の「読み込む」でこのファイルを選んでください', 'Records exported. On the other device, choose this file with Import in Settings'));
         else if (r === 'failed') show(L('書き出せませんでした。下の「テキストで写す」をお使いください', 'Could not export. Please use “copy as text” below'));
       });

@@ -32,11 +32,12 @@ async function readMove(h) {
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-// Pages 側: # に記録があれば、たずねて読み込む
+// Pages 側: # に記録があれば、たずねて読み込む（Android でアプリ内ブラウザから Chrome へ移るときは ?mv= に入っている）
 async function receive() {
-  const m = /[#&]move=([A-Za-z0-9_-]+)/.exec(location.hash || '');
+  let m = /[#&]move=([A-Za-z0-9_-]+)/.exec(location.hash || '');
+  if (!m) m = /[?&]mv=([A-Za-z0-9_-]+)/.exec(location.search || '');
   if (!m) return;
-  const clean = () => { try { const u = new URL(location.href); u.hash = ''; history.replaceState(history.state, '', u.toString()); } catch (e) { /* ignore */ } };
+  const clean = () => { try { const u = new URL(location.href); u.hash = ''; u.searchParams.delete('mv'); history.replaceState(history.state, '', u.toString()); } catch (e) { /* ignore */ } };
   let r;
   try { r = parseImport(await readMove(m[1])); } catch (e) { r = { ok: false, msg: L('記録を読めませんでした（リンクが途中で切れているかもしれません）', 'Could not read the records (the link may have been cut off)') }; }
   clean();
@@ -50,7 +51,7 @@ async function receive() {
       <div class="wc-k">${L('引っ越し', 'Moving in')}</div>
       <h2 id="wmvT">${L('記録を、こちらへ移しますか', 'Bring your records here?')}</h2>
       <ul class="wm-l">${r.lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>
-      <p class="wc-note">${L('このブラウザにある、ここでの記録は、持ってきた記録に入れかわります。claude.ai のほうの記録は、そのまま残ります。', 'Any records already saved here in this browser will be replaced. Your records on claude.ai stay as they are.')}</p>
+      <p class="wc-note">${L('このブラウザにある、ここでの記録は、持ってきた記録に入れかわります。もとの場所（アプリの中のブラウザや claude.ai）の記録も、そのまま残ります。', 'Any records already saved here in this browser will be replaced. The records where they came from (the in-app browser or claude.ai) stay as they are.')}</p>
       <div class="wm-a"><button type="button" class="btn primary" data-a="yes"><span class="seal">釣</span>${L('この記録で遊ぶ', 'Play with these records')}</button><button type="button" class="btn small" data-a="no">${L('移さない', 'Not now')}</button></div>
     </div>` : `
     <div class="wm-in">

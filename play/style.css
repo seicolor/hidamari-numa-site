@@ -572,3 +572,14 @@ html[lang="en"] body .wc-k { letter-spacing: .08em !important; }
 /* 英語のタイトル: 文字を積まず、横倒しの1行に（本の背のように） */
 html[lang="en"] #title h1,html[lang="en"] #title .sub{text-orientation:mixed;white-space:nowrap}
 html[lang="en"] #title h1{font-size:clamp(30px,min(6vw,8.4vh),80px);transform:none}
+
+/* 記録を守る案内（アプリ内ブラウザ・記録の控え） */
+#title .tkeep{pointer-events:auto}
+#title .tkeep .krow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+#title .tkeep .kbtn{display:inline-flex;align-items:center;padding:7px 14px;border-radius:999px;border:1px solid rgba(232,200,114,.6);background:rgba(232,200,114,.14);color:#fff3cf;font:inherit;font-size:13px;letter-spacing:.06em;cursor:pointer;text-decoration:none}
+#title .tkeep .kbtn.ghost{background:none;border-color:rgba(255,236,200,.25);color:var(--ink-dim)}
+#title .tkeep .khow{display:block;color:#fff3cf}
+#title .tkeep .knote{display:block;margin-top:6px;color:var(--ink-dim);font-size:12px;line-height:1.6}
+.kbox:empty{display:none}
+.kbox{margin-top:8px}
+.kbox .klink{width:100%;box-sizing:border-box;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,236,200,.3);background:rgba(0,0,0,.35);color:var(--ink);font:12px/1.4 ui-monospace,monospace}
