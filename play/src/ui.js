@@ -186,7 +186,7 @@ export class UI {
           <button class="panel iconbtn" id="btnSound" title="${L('音 (M)', 'Sound (M)')}">♪</button>
           <button class="panel iconbtn" id="btnSettings" title="${L('設定 (Esc)', 'Settings (Esc)')}">${L('設定', 'Settings')}</button>
         </div>
-        <div class="bl panel hudpart"><p class="lbl">${L('竿', 'Rod')}　<span class="k">[Q]</span></p><div class="baits" id="rods"></div><p class="lbl" style="margin-top:8px">${L('エサ', 'Bait')}</p><div class="baits" id="baits"></div></div>
+        <div class="bl panel hudpart"><button class="blsum" id="blSum" aria-expanded="false"><span class="blsum-k">${L('竿・エサ', 'Rod · bait')}</span><span id="blSumTxt"></span><span class="blsum-a" aria-hidden="true">▾</span></button><div class="blbody"><p class="lbl">${L('竿', 'Rod')}　<span class="k">[Q]</span></p><div class="baits" id="rods"></div><p class="lbl" style="margin-top:8px">${L('エサ', 'Bait')}</p><div class="baits" id="baits"></div></div></div>
         <div class="br hudpart"><button class="btn small" id="tankBtn" title="${L('水槽を見る (V)', 'View the aquarium (V)')}">${L('水槽を見る', 'Aquarium')}<kbd>V</kbd></button><button class="btn small" id="boatBtn" title="${L('ボートでこぎだす (B)', 'Row out in the boat (B)')}">${L('ボートにのる', 'Take the boat')}<kbd>B</kbd></button><button class="btn small" id="talkBtn" title="${L('おじいさんに話しかける (T)', 'Talk to the old man (T)')}">${L('おじいさんと話す', 'Talk to the old man')}<kbd>T</kbd></button><button class="btn small" id="catBtn" title="${L('猫に魚をあげる (C)', 'Give the cat a fish (C)')}">${L('ねこに魚をあげる', 'Feed the cat')}<kbd>C</kbd></button><div class="kept panel" id="kept">${L('びく', 'Creel')}　<b id="keptn">0</b> ${L('匹', '')}</div><button id="actbtn">${L('つる', 'Fish')}</button></div>
         <div class="bc">
           <div id="hint"></div>
@@ -213,6 +213,16 @@ export class UI {
     this.rodsEl = rodsEl;
     const keys = { worm: '1', dough: '2', gluten: '3' };
     baits.querySelectorAll('.chip').forEach((c) => (c.querySelector('small').textContent = `[${keys[c.dataset.b]}]`));
+    // タッチ画面: 竿・エサは、ふだんは「いまの竿・エサ」の1行にたたみ、押すとひらく（えらぶと、またたたむ）
+    this.bl = $('.bl', this.hud);
+    {
+      const sum = $('#blSum', this.hud), bl = this.bl;
+      if (this.isTouch) bl.classList.add('fold');
+      const setOpen = (on) => { bl.classList.toggle('open', on); sum.setAttribute('aria-expanded', on ? 'true' : 'false'); };
+      sum.addEventListener('click', (e) => { e.stopPropagation(); setOpen(!bl.classList.contains('open')); });
+      bl.addEventListener('click', (e) => { if (e.target.closest('.chip') && bl.classList.contains('fold')) setTimeout(() => setOpen(false), 260); });
+      document.addEventListener('pointerdown', (e) => { if (bl.classList.contains('open') && !bl.contains(e.target)) setOpen(false); }, true);
+    }
     $('#btnJournal', this.hud).addEventListener('click', () => this.toggleJournal());
     $('#btnMap', this.hud).addEventListener('click', () => this.handlers.onMap && this.handlers.onMap());
     $('#tmapbtn', this.title).addEventListener('click', () => this.handlers.onMap && this.handlers.onMap());
@@ -354,13 +364,23 @@ export class UI {
     f.classList.add('on');
   }
 
+  // たたんだ竿・エサの1行に、いまの竿とエサの名前を出す
+  _blSummary() {
+    const t = $('#blSumTxt', this.hud); if (!t) return;
+    const r = this.rodsEl && this.rodsEl.querySelector('.chip.on'), b = this.el && this.el.baits.querySelector('.chip.on');
+    const nm = (c) => (c ? c.firstChild.textContent.trim() : '');
+    t.textContent = [nm(r), nm(b)].filter(Boolean).join(L('・', ' · '));
+  }
+
   setBait(id) {
     this.el.baits.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c.dataset.b === id));
+    this._blSummary();
   }
 
   setRod(id) {
     if (!this.rodsEl) return;
     this.rodsEl.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c.dataset.r === id));
+    this._blSummary();
   }
 
   setKept(n) { this.el.kept.textContent = n; }
@@ -667,7 +687,9 @@ export class UI {
   }
   openGyotaku(cv, info) {
     const sp = info.sp;
-    const canShare = !!(navigator.canShare && navigator.share);
+    // 共有: claude.ai の中ではブラウザの共有が使えないので出さない。ファイルは先に作っておく
+    //（押してから作ると、その間に「押した直後」の扱いが切れて、iPhone などで共有が断られるため）
+    const canShare = !IN_ARTIFACT && typeof navigator.share === 'function';
     const url = cv.toDataURL('image/jpeg', 0.92);
     const el = h(`
       <div class="modal" data-k="gyotaku">
@@ -690,12 +712,21 @@ export class UI {
       else if (r === 'failed') this.toast(L('魚拓を保存できませんでした', 'Could not save the gyotaku'), 'warn', 2200);
     });
     const sh = el.querySelector('#gyShare');
-    if (sh) sh.addEventListener('click', async () => {
-      const f = await toFile(); if (!f) return;
-      try {
-        if (navigator.canShare({ files: [f] })) await navigator.share({ files: [f], title: L(`${PLACE.title}の魚拓`, `Gyotaku from ${PLACE.title}`), text: L(`${sp.name} ${info.cm.toFixed(1)} cm を釣りました（${PLACE.title}）`, `I caught a ${info.cm.toFixed(1)} cm ${sp.name} (${PLACE.title})`) });
-      } catch (e) { /* 共有をやめたとき */ }
-    });
+    if (sh) {
+      let file = null; toFile().then((f) => { file = f; });
+      const title = L(`${PLACE.title}の魚拓`, `Gyotaku from ${PLACE.title}`);
+      const text = L(`${sp.name} ${info.cm.toFixed(1)} cm を釣りました（${PLACE.title}）`, `I caught a ${info.cm.toFixed(1)} cm ${sp.name} (${PLACE.title})`);
+      const page = 'https://seicolor.github.io/hidamari-numa-site/series/';
+      sh.addEventListener('click', () => {
+        // 画像つきで共有できるなら画像ごと、できないなら文とページの住所だけ
+        const withFile = file && navigator.canShare && navigator.canShare({ files: [file] });
+        const data = withFile ? { files: [file], title, text } : { title, text, url: page };
+        navigator.share(data).catch((e) => {
+          if (e && e.name === 'AbortError') return;   // 自分でやめたとき
+          this.toast(L('共有できませんでした。「画像を保存」から保存して、送ってください', 'Could not share. Please save the image and send it'), 'warn', 3200);
+        });
+      });
+    }
     this._openModal(el);
     el.dataset.k = 'gyotaku';
   }

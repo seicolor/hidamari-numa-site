@@ -583,3 +583,30 @@ html[lang="en"] #title h1{font-size:clamp(30px,min(6vw,8.4vh),80px);transform:no
 .kbox:empty{display:none}
 .kbox{margin-top:8px}
 .kbox .klink{width:100%;box-sizing:border-box;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,236,200,.3);background:rgba(0,0,0,.35);color:var(--ink);font:12px/1.4 ui-monospace,monospace}
+
+/* ---------- タッチ画面の整理: 竿・エサをたたむ／キーの案内を出さない ---------- */
+.blsum{display:none}
+.bl.fold{padding:0;overflow:hidden}
+.bl.fold .blsum{display:flex;align-items:center;gap:8px;padding:9px 14px;font:inherit;font-size:13.5px;letter-spacing:.06em;color:var(--ink);background:none;border:0;white-space:nowrap;pointer-events:auto}
+.bl.fold .blsum-k{font-size:11px;letter-spacing:.14em;color:var(--ink-dim)}
+.bl.fold .blsum-a{font-size:11px;color:var(--ink-dim);transition:transform .2s}
+.bl.fold.open .blsum-a{transform:rotate(180deg)}
+.bl.fold .blbody{display:none;padding:0 12px 12px}
+.bl.fold.open .blbody{display:block}
+body.touch #hud kbd,body.touch #catch kbd,body.touch .bl .k,body.touch #baits .chip small{display:none}
+body.touch .br .btn.small{padding-inline:12px}
+/* 横持ち（低い画面）: ウキ下の目盛りを小さく、右下のボタンを詰める */
+@media (max-height:480px){
+  body.touch .dp{transform:scale(.82);transform-origin:top right}
+  body.touch .br{gap:6px}
+  body.touch .kept{padding:6px 12px;font-size:13px}
+}
+
+/* 縦持ちの画面（スマホ）: ウキ下の目盛りを短く、左上の時刻の札は1行ぶんの情報だけに */
+@media (max-width:700px) and (orientation:portrait){
+  #dpc{height:clamp(70px,18vh,130px)}
+  .dp{width:78px}
+  .tl .act{display:none}
+  .tl .tod{font-size:11px}
+  .tl{padding:7px 11px}
+}

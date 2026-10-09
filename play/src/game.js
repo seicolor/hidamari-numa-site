@@ -977,7 +977,7 @@ export class Game {
     const got = (id) => sv.data.catches[id] && sv.data.catches[id].count > 0;
     if (base.every(got) && sv.achieve('all')) this.ui.toast(PLACE.allToast, 'big', 3500);
     const seasonal = SPECIES_ORDER.filter((id) => isSeasonal(SPECIES[id]));
-    if (seasonal.every(got) && sv.achieve('seasons')) this.ui.toast(L('四季の魚をすべて釣った！　一年を味わった', 'You caught every seasonal fish! A full year of fishing'), 'big', 4000);
+    if (seasonal.length && seasonal.every(got) && sv.achieve('seasons')) this.ui.toast(L('四季の魚をすべて釣った！　一年を味わった', 'You caught every seasonal fish! A full year of fishing'), 'big', 4000);
     if (info.sp.id === 'nishiki' && sv.achieve('nishiki')) this.ui.toast(L('錦鯉に出会えた。いいことありそう', 'You met an ornamental koi. Something good may happen'), 'big', 3500);
     if (info.sp.legend && sv.achieve('nushi')) this.ui.toast(PLACE.legendToast, 'big', 4200);
     if (info.sp.junk && sv.achieve('boot')) this.ui.toast(L(`${info.sp.name}を釣った…！`, `You caught… a ${info.sp.name}!`), 'big', 2400);
