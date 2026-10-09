@@ -610,3 +610,13 @@ body.touch .br .btn.small{padding-inline:12px}
   .tl .tod{font-size:11px}
   .tl{padding:7px 11px}
 }
+/* スマホ: 右下と上をさらに整理 */
+body.touch .kept.empty{display:none}
+body.touch .br{gap:8px}
+body.touch .br .btn.small{padding:6px 12px;font-size:12.5px;min-height:0}
+body.touch .kept{padding:5px 11px;font-size:12.5px}
+@media (max-width:700px){
+  body.touch #btnSound{display:none}
+  body.touch .quest{align-items:center;padding:5px 10px}
+  body.touch .quest span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+}

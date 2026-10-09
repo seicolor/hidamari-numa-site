@@ -383,7 +383,7 @@ export class UI {
     this._blSummary();
   }
 
-  setKept(n) { this.el.kept.textContent = n; }
+  setKept(n) { this.el.kept.textContent = n; const k = this.el.kept.closest('.kept'); if (k) k.classList.toggle('empty', !n); }
   // 桟橋の猫がびくの魚をほしそうにしているとき、あげるボタンを出す
   setCatOffer(on) { this.catBtn.classList.toggle('on', !!on); }
   // ボートの行き先を選ぶ
