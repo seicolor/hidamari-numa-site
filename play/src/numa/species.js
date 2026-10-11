@@ -13,7 +13,7 @@ export const SPECIES = {
     cm: [9, 33], k: 0.0145, rarity: 1, strength: 0.3, stamina: 0.55, speed: 0.26,
     bait: { worm: 0.8, dough: 1.0, gluten: 0.6 }, minDepth: 0.4, layer: [0.35, 0.95],
     active: { dawn: 1.3, day: 1.0, dusk: 1.3, night: 0.55 }, nibble: [1, 3], hook: 1.25, count: 8, seeR: 5.5,
-    desc: '「釣りはフナに始まりフナに終わる」。のんびり暮らす沼のおなじみさん。',
+    desc: '「釣りはフナに始まりフナに終わる」。のんびり暮らす水辺のおなじみさん。',
     thumb: [0.9, 0.55],
   },
   koi: {
@@ -21,7 +21,7 @@ export const SPECIES = {
     cm: [28, 78], k: 0.0185, rarity: 2, strength: 0.82, stamina: 1.0, speed: 0.34,
     bait: { worm: 0.5, dough: 1.0, gluten: 0.25 }, minDepth: 0.9, layer: [0.7, 1.5],
     active: { dawn: 1.0, day: 0.8, dusk: 1.3, night: 1.25 }, nibble: [2, 4], hook: 1.5, count: 3, seeR: 6.5,
-    desc: '沼のぬし級。ひげを揺らして底をさぐる、引きの強い大物。',
+    desc: 'ぬし級。ひげを揺らして底をさぐる、引きの強い大物。',
     thumb: [1.0, 0.55],
   },
   tanago: {
@@ -61,7 +61,7 @@ export const SPECIES = {
     cm: [28, 62], k: 0.0098, rarity: 3, strength: 0.7, stamina: 0.9, speed: 0.1,
     bait: { worm: 1.0, dough: 0.1, gluten: 0.0 }, minDepth: 1.1, layer: [1.1, 2.0],
     active: { dawn: 1.2, day: 0.3, dusk: 1.5, night: 2.0 }, nibble: [2, 3], hook: 1.4, count: 2, seeR: 5,
-    desc: '雷雨の前に騒ぐと言われる沼のぬし。ぬるぬる、のっそり。',
+    desc: '雷雨の前に騒ぐと言われる水辺のぬし。ぬるぬる、のっそり。',
     thumb: [1.0, 0.45],
   },
   nishiki: {
@@ -69,7 +69,7 @@ export const SPECIES = {
     cm: [35, 66], k: 0.02, rarity: 4, strength: 0.88, stamina: 1.0, speed: 0.3,
     bait: { worm: 0.03, dough: 1.0, gluten: 0.05 }, minDepth: 1.0, layer: [0.45, 1.05],
     active: { dawn: 1.4, day: 0.9, dusk: 1.5, night: 0.5 }, nibble: [3, 5], hook: 1.6, count: 1, seeR: 4.5,
-    desc: '紅白の錦。出会えたらきっと良いことがある、沼の宝もの。',
+    desc: '紅白の錦。出会えたらきっと良いことがある、水辺の宝もの。',
     thumb: [1.0, 0.55],
   },
   // 季節の魚: その季節にだけ沼にあらわれる（season）。ほかの季節は、設定で季節を変えれば会える。
@@ -105,17 +105,17 @@ export const SPECIES = {
     cm: [6, 14], k: 0.0065, rarity: 3, strength: 0.06, stamina: 0.2, speed: 0.45,
     bait: { worm: 0.45, dough: 0.15, gluten: 1.0 }, minDepth: 0.6, layer: [0.7, 1.6],
     active: { dawn: 1.3, day: 1.0, dusk: 1.2, night: 0.3 }, nibble: [3, 6], hook: 0.9, count: 6, seeR: 4,
-    desc: '冬の沼にだけやってくる、小さな銀色のさかな。冷たい水で、ちいさく群れる。',
+    desc: '冬の水辺にだけやってくる、小さな銀色のさかな。冷たい水で、ちいさく群れる。',
     rumor: '雪の季節、銀色の小さな群れが沈んでいた……という話がある。',
     thumb: [0.75, 0.45],
   },
   // 沼のぬし: ふだんは姿を見せない。雨の夜、ミミズを深く沈めると寄ってくる（count: 0 は、ふつうには住んでいないということ）
   nushi: {
-    id: 'nushi', model: 'namazu', legend: true, name: '沼のぬし', ruby: 'ぬまのぬし', latin: 'Silurus asotus (senex)', kind: 'swim',
+    id: 'nushi', model: 'namazu', legend: true, name: '水辺のぬし', ruby: 'みずべのぬし', latin: 'Silurus asotus (senex)', kind: 'swim',
     cm: [88, 118], k: 0.0098, rarity: 4, strength: 0.96, stamina: 1.3, speed: 0.12,
     bait: { worm: 1.0, dough: 0.12, gluten: 0.0 }, minDepth: 1.5, layer: [1.4, 2.4],
     active: { dawn: 0.8, day: 0.1, dusk: 1.0, night: 2.4 }, nibble: [3, 5], hook: 1.7, count: 0, seeR: 6,
-    desc: '何十年も沼の底に棲むという、苔むした大ナマズ。雨の夜だけ、深みから姿をあらわす。',
+    desc: '何十年も水の底に棲むという、苔むした大ナマズ。雨の夜だけ、深みから姿をあらわす。',
     rumor: '雨の夜、ミミズを深く沈めると、大きな影が寄ってくる……という噂。',
     thumb: [1.0, 0.42], tint: 0x9aa088,
   },
@@ -193,7 +193,7 @@ export const QUEST = {
   big: ['funa', 'koi', 'koi'],
   rare: { id: 'namazu', hint: ' ／ 夜や雨の日がねらいめ' },
   many: ['funa', 'tanago'], manyN: { funa: 6, tanago: 5 }, manyDefault: 5, manyAvoid: { tanago: 'funa' },
-  titles: [[30, '沼のぬし'], [14, '沼の達人'], [7, '沼の常連'], [3, '沼のなじみ'], [1, '見習い釣り人']],
+  titles: [[30, '水辺のぬし'], [14, '水辺の達人'], [7, '水辺の常連'], [3, '水辺のなじみ'], [1, '見習い釣り人']],
 };
 
 // ---------------------------------------------------------------------------

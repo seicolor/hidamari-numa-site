@@ -152,7 +152,7 @@ const SEASON_TIPS_JA = {
   autumn: ['秋はヘラブナの荒食いよ。グルテンを丸めて、ふわっと落としてやるんじゃ。', '紅葉を見ながらの釣りは、格別じゃのう。'],
   winter: ['雪の日は、ワカサギじゃ。深めに、グルテンでの。', '冬は魚も眠たそうでの。のんびり待つのが、ええんじゃ。'],
 };
-const NUSHI_JA = 'この沼にはな、ぬしがおるそうじゃ。雨の夜に、ミミズを深ーく沈めてみい。';
+const NUSHI_JA = 'この水辺にはな、ぬしがおるそうじゃ。雨の夜に、ミミズを深ーく沈めてみい。';
 const MUTTERS_JA = ['ふぅ…ええ天気じゃ。', 'ほほう、今日は静かじゃのう。', 'ん？ 気のせいか…。', 'そろそろ、お茶にするかのう。', 'ええ風じゃ。'];
 
 // 英語のせりふ（のんびりした、おじいさんの口ぶりで）
@@ -226,7 +226,7 @@ export class Neighbor {
     let luck = false;
     const first = !ctx.met;
     if (first) {
-      text = L('おお、見かけん顔じゃのう。ここはええ沼じゃよ。ま、ゆっくりやんなされ。', 'Well now, a new face. This is a fine pond. Take your time.');
+      text = L('おお、見かけん顔じゃのう。ここはええ釣り場じゃよ。ま、ゆっくりやんなされ。', 'Well now, a new face. This is a fine pond. Take your time.');
       luck = true;
     } else {
       const pool = [];

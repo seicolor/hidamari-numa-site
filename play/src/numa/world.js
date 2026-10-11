@@ -78,7 +78,7 @@ export function buildLife({ scene, camera, water, fx, audio, ui, save, getGame }
     onArrive: (spot) => {
       audio.boatKnock();
       ui.toast(L(`${spot.name}　水深 ${spot.depth.toFixed(1)} m`, `${spot.name} · depth ${spot.depth.toFixed(1)} m`), 'info', 3000);
-      if (save.achieve('boat')) setTimeout(() => ui.toast(L('はじめてのボート。沼がちがって見える', 'Your first boat trip. The pond looks different from here'), 'big', 2800), 1400);
+      if (save.achieve('boat')) setTimeout(() => ui.toast(L('はじめてのボート。水辺がちがって見える', 'Your first boat trip. The pond looks different from here'), 'big', 2800), 1400);
     },
   });
   // 隣の釣り人（おじいさん）: 手前の岸（左うしろ）に、ときどき来る
