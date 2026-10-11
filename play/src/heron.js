@@ -95,7 +95,7 @@ export class Heron {
     const breast = ell(0.1, 0.1, 0.08, 0.12, 0.66, 0, [0, 0, 0.3]);
     const folded = ell(0.2, 0.07, 0.115, -0.04, 0.66, 0, [0, 0, 0.12]);
     for (const g of [body, tail, breast, folded]) colorFlat(g, [1, 1, 1]);
-    const neckPts = [[0.14, 0.7, 0], [0.22, 0.82, 0], [0.16, 0.98, 0], [0.22, 1.12, 0], [0.2, 1.22, 0]];
+    const neckPts = [[0.13, 0.7, 0], [0.2, 0.8, 0], [0.21, 0.92, 0], [0.16, 1.04, 0], [0.17, 1.15, 0], [0.21, 1.23, 0]];
     const neck = tube(neckPts, 0.036, 0.02, 18, 6);
     colorFlat(neck, [1, 1, 1]);
     const head = ell(0.045, 0.028, 0.026, 0.235, 1.26, 0);
