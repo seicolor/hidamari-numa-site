@@ -36,7 +36,7 @@ if (INAPP && INAPP.app === 'LINE') {
 // この端末に、ひだまりの記録があるか（釣った数の合計）
 export function caughtTotal() {
   let n = 0;
-  for (const k of ['hidamari-hama-v1', 'hidamari-numa-v1']) {
+  for (const k of ['hidamari-hama-v1', 'hidamari-numa-v1', 'hidamari-oki-v1']) {
     try { const s = JSON.parse(localStorage.getItem(k) || 'null'); if (s && s.total) n += s.total; } catch (e) { /* ignore */ }
   }
   return n;

@@ -3,7 +3,7 @@ import { SEASON, SEASON_ID } from './season.js';
 import { clamp, lerp, smoothstep } from './util.js';
 import { PLACE } from './place.js';
 import { G } from './materials.js';
-const HAMA = PLACE.id === 'hama';
+const HAMA = PLACE.id === 'hama' || PLACE.id === 'oki';   // 海の釣り場（波の音・海鳥）
 
 const rnd = (a = 0, b = 1) => a + Math.random() * (b - a);
 

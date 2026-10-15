@@ -4,7 +4,7 @@ import { L, NUM_LOCALE } from './i18n.js';
 import { Save } from './save.js';
 
 const PREFIX = 'hidamari-';
-const NAMES = { 'hidamari-hama-v1': L('ひだまり浜', 'Hidamari Cove'), 'hidamari-numa-v1': L('ひだまり沼', 'Hidamari Pond') };
+const NAMES = { 'hidamari-hama-v1': L('ひだまり浜', 'Hidamari Cove'), 'hidamari-numa-v1': L('ひだまり沼', 'Hidamari Pond'), 'hidamari-oki-v1': L('ひだまり港', 'Hidamari Harbor') };
 
 function keys() {
   const out = [];

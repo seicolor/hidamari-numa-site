@@ -4,7 +4,7 @@ import { SEASON_ID, SEASON_NAMES } from './season.js';
 import { PLACE_ID } from './place.js';
 
 // 魚種データは場所ごと（numa/species.js・hama/species.js）。ここは共通の計算。
-const D = await import(PLACE_ID === 'hama' ? './hama/species.js' : './numa/species.js');
+const D = await import(PLACE_ID === 'hama' ? './hama/species.js' : PLACE_ID === 'oki' ? './oki/species.js' : './numa/species.js');
 export const { BAITS, SPECIES, SPECIES_ORDER, QUEST } = D;
 const { SEASON_ACT, LAYER_SEASON } = D;
 export const DEFAULT_BITE = { tick: { amp: -0.04, dur: 0.32, up: 0.28, gap: [0.6, 1.4], snd: 'tick' }, end: { sink: -0.4, rate: 14, snd: 'sink' } };

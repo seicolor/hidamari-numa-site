@@ -137,7 +137,7 @@ export class UI {
       <div id="title">
         <div class="wrap">
           <h1>${PLACE.title}</h1>
-          <div class="sub">${PLACE.id === 'hama' ? L('のんびり南の海釣り', 'Slow fishing in the tropics') : L('のんびり田舎釣り', 'Slow fishing in the countryside')}</div>
+          <div class="sub">${PLACE.id === 'hama' ? L('のんびり南の海釣り', 'Slow fishing in the tropics') : PLACE.id === 'oki' ? L('のんびり南の港釣り', 'Slow fishing at a southern harbor') : L('のんびり田舎釣り', 'Slow fishing in the countryside')}</div>
           <div class="menu">
             <div class="lead">${PLACE.lead}</div>
             <div class="tq" id="tq"></div>

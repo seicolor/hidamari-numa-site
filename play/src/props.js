@@ -2,11 +2,13 @@
 import * as THREE from 'three';
 import { mulberry32, clamp, lerp, TAU, smoothstep } from './util.js';
 import { terrainHeight, SHORE_Z, HOUSE, FIELD, PATH } from './terrain.js';
+import { PLACE_ID } from './place.js';
 import { patchMaterial, G } from './materials.js';
 import { mergeGeos, colorFlat, M, instancedFrom, displace } from './geo.js';
 import { makeWoodTexture, makeThatchTexture, makePlasterTexture, makeTileTexture, canvasTexture, makeSignTexture } from './textures.js';
 
-export const PIER = { x: 0, zStart: SHORE_Z + 3.2, zEnd: SHORE_Z - 5.4, y: 0.62, w: 1.5 };
+// 港（oki）では、岸壁の高さの壁ぎわから海へ突き出す浮き桟橋（潮が動いても、水面からの高さは変わらない）
+export const PIER = { x: 0, zStart: PLACE_ID === 'oki' ? SHORE_Z - 0.35 : SHORE_Z + 3.2, zEnd: SHORE_Z - 5.4, y: 0.62, w: 1.5 };
 
 function wood(color = 0xffffff, tex, rep = [1, 1], extra = {}) {
   const t = tex.clone();
